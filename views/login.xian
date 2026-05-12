@@ -199,24 +199,38 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Connecting to Google...';
 
       try {
-        // Try popup first (desktop), fall back to redirect (mobile/blocked)
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
         await sendTokenToServer(idToken);
       } catch (err) {
-        if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-          // Popup was blocked — fall back to redirect flow
-          if (err.code !== 'auth/popup-closed-by-user') {
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Redirecting...';
-            await signInWithRedirect(auth, provider);
-          } else {
-            btn.disabled = false;
-            btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Continue with Google</span>';
-          }
-        } else {
-          console.error('Google sign-in error:', err);
-          showError(err.message || 'Google sign-in failed. Please try again.');
+        console.error('Google sign-in error code:', err.code, err.message);
+
+        if (err.code === 'auth/unauthorized-domain') {
+          showError(
+            'This domain is not authorized for Google Sign-In. ' +
+            'Please go to Firebase Console → Authentication → Settings → Authorized Domains ' +
+            'and add: <strong>' + window.location.hostname + '</strong>'
+          );
+          return;
         }
+
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Redirecting...';
+          try {
+            await signInWithRedirect(auth, provider);
+          } catch (redirectErr) {
+            showError(redirectErr.message || 'Redirect failed. Please try again.');
+          }
+          return;
+        }
+
+        if (err.code === 'auth/popup-closed-by-user') {
+          btn.disabled = false;
+          btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Continue with Google</span>';
+          return;
+        }
+
+        showError(err.message || 'Google sign-in failed. Please try again.');
       }
     };
 

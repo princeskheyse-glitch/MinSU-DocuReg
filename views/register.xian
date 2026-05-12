@@ -253,21 +253,40 @@
       const btn = document.getElementById('google-btn');
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-gray-500"></i><span class="text-gray-600">Connecting to Google...</span>';
+
       try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
         await sendTokenToServer(idToken);
       } catch (err) {
+        console.error('Google sign-in error code:', err.code, err.message);
+
+        if (err.code === 'auth/unauthorized-domain') {
+          showError(
+            'This domain is not authorized for Google Sign-In. ' +
+            'Please go to Firebase Console → Authentication → Settings → Authorized Domains ' +
+            'and add: <strong>' + window.location.hostname + '</strong>'
+          );
+          return;
+        }
+
         if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
           btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-gray-500"></i><span class="text-gray-600">Redirecting...</span>';
-          await signInWithRedirect(auth, provider);
-        } else if (err.code === 'auth/popup-closed-by-user') {
+          try {
+            await signInWithRedirect(auth, provider);
+          } catch (redirectErr) {
+            showError(redirectErr.message || 'Redirect failed. Please try again.');
+          }
+          return;
+        }
+
+        if (err.code === 'auth/popup-closed-by-user') {
           btn.disabled = false;
           btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Sign up with Google</span>';
-        } else {
-          console.error('Google sign-in error:', err);
-          showError(err.message || 'Google sign-in failed. Please try again.');
+          return;
         }
+
+        showError(err.message || 'Google sign-in failed. Please try again.');
       }
     };
 
