@@ -4,11 +4,15 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node index.js",
     "xian-start": "node index.js",
     "xian": "nodemon --ext js,xian,hbs index.js",
     "seed": "node seed.js",
     "create:model": "node create.js model",
     "create:controller": "node create.js controller"
+  },
+  "engines": {
+    "node": ">=18.x"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

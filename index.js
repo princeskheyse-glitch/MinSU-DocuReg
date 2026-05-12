@@ -17,7 +17,7 @@ import hbs from "hbs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
-// Initialize Firebase (this also initializes the Admin SDK)
+// Initialize Firebase
 import { db } from "./models/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,12 +28,17 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(process.cwd(), "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "xianfire-secret-key",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 app.use(flash());
 
@@ -48,7 +53,6 @@ hbs.registerHelper('unless_eq', function(a, b, options) {
 
 hbs.registerHelper('formatDate', (date) => {
   if (!date) return '';
-  // Handle Firestore Timestamp objects
   const d = date._seconds ? new Date(date._seconds * 1000) : new Date(date);
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 });
@@ -118,19 +122,13 @@ app.engine("xian", async (filePath, options, callback) => {
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash("success_msg");
   res.locals.error_msg = req.flash("error_msg");
-  // Inject global CSS that prevents horizontal overflow on every page
-  res.locals.globalStyle = `<style>
-    html, body { max-width: 100%; overflow-x: hidden; }
-    *, *::before, *::after { box-sizing: border-box; }
-    img, video, iframe, table { max-width: 100%; }
-  </style>`;
   next();
 });
 
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "xian");
 
-// ── Register partials synchronously ──
+// ── Register partials ──
 const partialsDir = path.join(__dirname, "views/partials");
 try {
   fs.readdirSync(partialsDir)
@@ -139,31 +137,27 @@ try {
       const name = file.replace(/\.(xian|hbs)$/, '');
       const content = fs.readFileSync(path.join(partialsDir, file), 'utf8');
       hbs.registerPartial(name, content);
-      console.log(`✅ Partial registered: ${name}`);
     });
+  console.log("✅ Partials registered");
 } catch (err) {
   console.error("❌ Could not register partials:", err);
 }
 
 app.use("/", router);
 
-// ── Verify Firestore connection ──
-try {
-  await db.collection('_health').doc('ping').set({ ts: new Date() });
-  await db.collection('_health').doc('ping').delete();
-  console.log("✅ Connected to Firebase Firestore!");
-} catch (err) {
-  console.error("❌ Firestore connection failed:", err.message);
-  process.exit(1);
+// ── Local dev server (not used on Vercel) ──
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, async () => {
+    console.log(`🔥 XianFire running at http://localhost:${PORT}`);
+    // Verify Firestore only in local dev
+    try {
+      await db.collection('_health').doc('ping').set({ ts: new Date() });
+      await db.collection('_health').doc('ping').delete();
+      console.log("✅ Connected to Firebase Firestore!");
+    } catch (err) {
+      console.error("❌ Firestore connection failed:", err.message);
+    }
+  });
 }
-
-// ── Warm up notification index (suppresses repeated FAILED_PRECONDITION warnings) ──
-try {
-  await db.collection('notifications').where('userId', '==', '_warmup_').orderBy('createdAt', 'desc').limit(1).get();
-} catch (_) { /* index building — fallback in notificationModel handles queries */ }
 
 export default app;
-
-if (!process.env.ELECTRON) {
-  app.listen(PORT, () => console.log(`🔥 XianFire running at http://localhost:${PORT}`));
-}
