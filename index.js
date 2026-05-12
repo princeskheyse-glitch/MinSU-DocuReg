@@ -19,6 +19,7 @@ import { dirname } from "path";
 
 // Initialize Firebase
 import { db } from "./models/db.js";
+import { FirestoreStore } from "./utils/firestoreSessionStore.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -34,6 +35,8 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "xianfire-secret-key",
   resave: false,
   saveUninitialized: false,
+  // Use Firestore store in production so sessions persist across serverless invocations
+  store: db ? new FirestoreStore(db, { collection: 'sessions', ttl: 86400 }) : undefined,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
