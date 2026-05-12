@@ -11,24 +11,40 @@ import { dirname, join } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load service account — file takes priority (local dev), env var used on Vercel/production
-let serviceAccount;
+let serviceAccount = null;
 const serviceAccountPath = join(__dirname, '../firebase-service-account.json');
 
 if (existsSync(serviceAccountPath)) {
-  const require = createRequire(import.meta.url);
-  serviceAccount = require('../firebase-service-account.json');
+  try {
+    const require = createRequire(import.meta.url);
+    serviceAccount = require('../firebase-service-account.json');
+    console.log('✅ Firebase: loaded from service account file');
+  } catch (e) {
+    console.error('❌ Firebase: failed to parse service account file:', e.message);
+  }
 } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    console.log('✅ Firebase: loaded from FIREBASE_SERVICE_ACCOUNT env var');
+  } catch (e) {
+    console.error('❌ Firebase: failed to parse FIREBASE_SERVICE_ACCOUNT env var:', e.message);
+  }
 } else {
-  throw new Error('Firebase service account not found. Provide firebase-service-account.json or FIREBASE_SERVICE_ACCOUNT env var.');
+  console.error('❌ Firebase: no service account found. Set FIREBASE_SERVICE_ACCOUNT env var on Vercel.');
 }
 
-// Initialize only once
-if (!getApps().length) {
-  initializeApp({ credential: cert(serviceAccount) });
+// Initialize only once — skip if no credentials (app will show config error)
+if (serviceAccount && !getApps().length) {
+  try {
+    initializeApp({ credential: cert(serviceAccount) });
+    console.log('✅ Firebase Admin initialized');
+  } catch (e) {
+    console.error('❌ Firebase Admin init failed:', e.message);
+    serviceAccount = null;
+  }
 }
 
-export const db = getFirestore();
+export const db = serviceAccount ? getFirestore() : null;
 
 // Collection references
 export const Collections = {
@@ -39,26 +55,16 @@ export const Collections = {
   NOTIFICATIONS: 'notifications'
 };
 
-/**
- * Convert a Firestore doc snapshot to a plain object with id
- */
 export const docToObj = (doc) => {
   if (!doc.exists) return null;
   const data = doc.data();
-  // Convert Firestore Timestamps to JS Dates
   Object.keys(data).forEach(key => {
     if (data[key]?.toDate) data[key] = data[key].toDate();
   });
   return { id: doc.id, ...data };
 };
 
-/**
- * Convert a Firestore query snapshot to array of plain objects
- */
 export const snapshotToArray = (snapshot) =>
   snapshot.docs.map(docToObj);
 
-/**
- * Generate a short unique ID (Firestore auto-IDs are fine but we expose this helper)
- */
-export const newId = () => db.collection('_').doc().id;
+export const newId = () => db ? db.collection('_').doc().id : Math.random().toString(36).slice(2);

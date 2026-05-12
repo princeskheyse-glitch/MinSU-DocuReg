@@ -143,6 +143,34 @@ try {
   console.error("❌ Could not register partials:", err);
 }
 
+// ── Config check middleware — shows helpful error if Firebase not configured ──
+app.use((req, res, next) => {
+  if (!db) {
+    return res.status(503).send(`
+      <!DOCTYPE html><html><head><title>Configuration Required</title>
+      <style>body{font-family:sans-serif;max-width:600px;margin:80px auto;padding:20px;background:#f9fafb}
+      h1{color:#dc2626}code{background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:14px}
+      .box{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;margin-top:16px}</style>
+      </head><body>
+      <h1>⚙️ Firebase Not Configured</h1>
+      <div class="box">
+        <p>The app is missing its Firebase credentials. Add this environment variable in your <strong>Vercel project settings</strong>:</p>
+        <p><code>FIREBASE_SERVICE_ACCOUNT</code> — paste the full contents of your <code>firebase-service-account.json</code> file as the value.</p>
+        <p>Also ensure these are set:</p>
+        <ul>
+          <li><code>SESSION_SECRET</code> — any long random string</li>
+          <li><code>NODE_ENV</code> = <code>production</code></li>
+          <li><code>EMAIL_USER</code> — your Gmail address</li>
+          <li><code>EMAIL_PASS</code> — your Gmail app password</li>
+        </ul>
+        <p>After adding variables, click <strong>Redeploy</strong> in Vercel.</p>
+      </div>
+      </body></html>
+    `);
+  }
+  next();
+});
+
 app.use("/", router);
 
 // ── Local dev server (not used on Vercel) ──
