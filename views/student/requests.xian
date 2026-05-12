@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+  <title>My Requests - MinSU DocuReg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+    .anim-up   { animation:fadeInUp .45s ease-out both; }
+    .anim-down { animation:fadeInDown .45s ease-out both; }
+    *, *::before, *::after { box-sizing: border-box; }
+  </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 min-h-screen flex flex-col">
+  {{>navbar}}
+  <div class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+
+    <div class="anim-down mb-6">
+      <p class="text-emerald-600 font-semibold text-sm uppercase tracking-wider mb-1">Student Portal</p>
+      <h1 class="text-2xl sm:text-3xl font-black text-gray-800">My Document Requests</h1>
+      <p class="text-gray-500 mt-1 text-sm">Track and manage all your requests</p>
+    </div>
+
+    <!-- ── MOBILE: card list (hidden on sm+) ── -->
+    <div class="sm:hidden anim-up space-y-3">
+      {{#each requests}}
+      <a href="/student/requests/{{this.id}}" class="block bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition active:bg-gray-50">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i class="fas fa-file-alt text-emerald-600 text-sm"></i>
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-gray-800 leading-tight">{{formatDocType this.documentType}}</p>
+              <p class="text-xs text-gray-400 mt-1">{{formatDate this.createdAt}}</p>
+            </div>
+          </div>
+          <div class="flex-shrink-0">
+            {{#switch this.status}}
+              {{#case 'pending'}}<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><i class="fas fa-hourglass-start mr-1"></i>Pending</span>{{/case}}
+              {{#case 'processing'}}<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><i class="fas fa-cog mr-1"></i>Processing</span>{{/case}}
+              {{#case 'ready'}}<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fas fa-check-circle mr-1"></i>Ready</span>{{/case}}
+              {{#case 'completed'}}<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-700"><i class="fas fa-check-double mr-1"></i>Done</span>{{/case}}
+              {{#case 'rejected'}}<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fas fa-times-circle mr-1"></i>Rejected</span>{{/case}}
+            {{/switch}}
+          </div>
+        </div>
+        {{#if this.purpose}}
+        <p class="text-xs text-gray-500 mt-2 ml-12 truncate">{{this.purpose}}</p>
+        {{/if}}
+        <div class="flex justify-end mt-2">
+          <span class="text-xs text-emerald-600 font-bold flex items-center gap-1">View Details <i class="fas fa-arrow-right text-xs"></i></span>
+        </div>
+      </a>
+      {{else}}
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-3 mx-auto">
+          <i class="fas fa-inbox text-gray-400 text-xl"></i>
+        </div>
+        <p class="text-gray-500 font-semibold text-sm">No requests found</p>
+        <a href="/student/request/new" class="mt-2 inline-block text-emerald-600 font-bold text-sm hover:underline">Create one now</a>
+      </div>
+      {{/each}}
+    </div>
+
+    <!-- ── DESKTOP: table (hidden on mobile) ── -->
+    <div class="hidden sm:block anim-up bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div class="bg-gradient-to-r from-emerald-700 to-teal-700 px-6 py-5">
+        <h2 class="text-white text-lg font-black flex items-center"><i class="fas fa-list mr-3"></i>All Requests</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th class="px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Document Type</th>
+              <th class="hidden md:table-cell px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Purpose</th>
+              <th class="px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-5 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {{#each requests}}
+            <tr class="hover:bg-emerald-50 transition">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-file-alt text-emerald-600 text-xs"></i>
+                  </div>
+                  <span class="text-sm font-semibold text-gray-800">{{formatDocType this.documentType}}</span>
+                </div>
+              </td>
+              <td class="hidden md:table-cell px-5 py-4 text-sm text-gray-500 max-w-xs truncate">{{this.purpose}}</td>
+              <td class="px-5 py-4">
+                {{#switch this.status}}
+                  {{#case 'pending'}}<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><i class="fas fa-hourglass-start mr-1.5"></i>Pending</span>{{/case}}
+                  {{#case 'processing'}}<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><i class="fas fa-cog mr-1.5"></i>Processing</span>{{/case}}
+                  {{#case 'ready'}}<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fas fa-check-circle mr-1.5"></i>Ready</span>{{/case}}
+                  {{#case 'completed'}}<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-700"><i class="fas fa-check-double mr-1.5"></i>Completed</span>{{/case}}
+                  {{#case 'rejected'}}<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fas fa-times-circle mr-1.5"></i>Rejected</span>{{/case}}
+                {{/switch}}
+              </td>
+              <td class="px-5 py-4 text-sm text-gray-500">{{formatDate this.createdAt}}</td>
+              <td class="px-5 py-4">
+                <a href="/student/requests/{{this.id}}" class="inline-flex items-center text-emerald-600 hover:text-emerald-800 font-bold text-sm transition">
+                  <i class="fas fa-arrow-right mr-1.5"></i>Details
+                </a>
+              </td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="5" class="px-6 py-16 text-center">
+                <div class="flex flex-col items-center">
+                  <div class="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+                    <i class="fas fa-inbox text-gray-400 text-2xl"></i>
+                  </div>
+                  <p class="text-gray-500 font-semibold mb-2">No requests found</p>
+                  <a href="/student/request/new" class="text-emerald-600 font-bold text-sm hover:underline">Create one now</a>
+                </div>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {{>footer}}
+</body>
+</html>

@@ -1,0 +1,79 @@
+<footer class="w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-400 mt-auto relative">
+  <!-- decorative blobs — clipped so they don't cause overflow -->
+  <div class="absolute top-0 left-0 w-64 h-64 bg-emerald-900 opacity-20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none overflow-hidden"></div>
+  <div class="absolute bottom-0 right-0 w-64 h-64 bg-teal-900 opacity-20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none overflow-hidden"></div>
+
+  <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
+
+      <!-- Brand -->
+      <div class="col-span-2 sm:col-span-2 md:col-span-1">
+        <div class="flex items-center space-x-3 mb-3">
+          <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md flex-shrink-0 overflow-hidden">
+            <img src="/images/logo/minsu-logo.png" alt="MinSU Logo" class="w-8 h-8 object-contain">
+          </div>
+          <p class="text-white font-black text-base">MinSU DocuReg</p>
+        </div>
+        <p class="text-sm text-gray-500 leading-relaxed">Document management system for Mindoro State University Registrar's Office.</p>
+        <div class="flex space-x-3 mt-4">
+          <a href="#" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-emerald-600 flex items-center justify-center transition-colors duration-200">
+            <i class="fab fa-facebook-f text-xs text-gray-300"></i>
+          </a>
+          <a href="#" class="w-8 h-8 rounded-full bg-gray-700 hover:bg-emerald-600 flex items-center justify-center transition-colors duration-200">
+            <i class="fab fa-twitter text-xs text-gray-300"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <p class="text-white font-bold mb-3 text-sm uppercase tracking-wider">Quick Links</p>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/" class="hover:text-emerald-400 transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-emerald-600"></i>Home</a></li>
+          <li><a href="/login" class="hover:text-emerald-400 transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-emerald-600"></i>Login</a></li>
+          <li><a href="/register" class="hover:text-emerald-400 transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-emerald-600"></i>Register</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div>
+        <p class="text-white font-bold mb-3 text-sm uppercase tracking-wider">Support</p>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-emerald-400 transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-emerald-600"></i>Help Center</a></li>
+          <li><a href="#" class="hover:text-emerald-400 transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-emerald-600"></i>Contact Us</a></li>
+          <li><a href="#" class="hover:text-emerald-400 transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-emerald-600"></i>Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <p class="text-white font-bold mb-3 text-sm uppercase tracking-wider">Contact</p>
+        <ul class="space-y-3 text-sm">
+          <li class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-emerald-900 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-envelope text-emerald-400 text-xs"></i>
+            </div>
+            <span class="break-all">info@minsu.edu.ph</span>
+          </li>
+          <li class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-emerald-900 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-phone text-emerald-400 text-xs"></i>
+            </div>
+            <span>+63-123-456-7890</span>
+          </li>
+          <li class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-lg bg-emerald-900 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-map-marker-alt text-emerald-400 text-xs"></i>
+            </div>
+            <span>Mindoro State University</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-700 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500">
+      <p>&copy; 2025 Mindoro State University. All rights reserved.</p>
+      <p>Built with <i class="fas fa-heart text-red-500 mx-1"></i> for MinSU Students</p>
+    </div>
+  </div>
+</footer>

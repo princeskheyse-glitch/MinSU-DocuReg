@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>Schedule Appointment - MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 min-h-screen flex flex-col pt-20">
+    {{>navbar}}
+    <main class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="mb-8">
+            <a href="{{basePath}}/appointments" class="text-green-600 hover:text-green-800 font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Appointments
+            </a>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-green-700 to-emerald-700 px-8 py-8">
+                <h1 class="text-white text-2xl font-black flex items-center">
+                    <i class="fas fa-calendar-plus mr-3"></i> Schedule New Appointment
+                </h1>
+                <p class="text-green-100 mt-2">Manually schedule a document pickup appointment</p>
+            </div>
+
+            <form method="POST" action="{{basePath}}/appointments/new" class="p-8 space-y-6">
+
+                <!-- Document Request -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fas fa-file-alt mr-2 text-green-600"></i>Document Request
+                    </label>
+                    {{#if readyRequests.length}}
+                    <select name="documentRequestId" required
+                        class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 font-medium bg-white">
+                        <option value="">-- Select a ready request --</option>
+                        {{#each readyRequests}}
+                        <option value="{{this.id}}">
+                            {{this.student.name}} — {{this.documentType}} ({{this.student.studentId}})
+                        </option>
+                        {{/each}}
+                    </select>
+                    {{else}}
+                    <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl px-4 py-4 flex items-start gap-3">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-yellow-800 font-semibold">No requests ready for pickup</p>
+                            <p class="text-yellow-700 text-sm mt-1">Mark a document request as <strong>Ready</strong> before scheduling an appointment.</p>
+                            <a href="{{basePath}}/requests" class="inline-block mt-2 text-sm text-green-700 font-bold hover:underline">
+                                <i class="fas fa-arrow-right mr-1"></i>Go to Requests
+                            </a>
+                        </div>
+                    </div>
+                    <!-- Hidden field so form still submits and shows server-side error -->
+                    <input type="hidden" name="documentRequestId" value="">
+                    {{/if}}
+                </div>
+
+                <!-- Date & Time -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-calendar mr-2 text-green-600"></i>Appointment Date
+                        </label>
+                        <input type="date" name="appointmentDate" required
+                            class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            <i class="fas fa-clock mr-2 text-green-600"></i>Appointment Time
+                        </label>
+                        <input type="time" name="appointmentTime" required
+                            class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 font-medium">
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fas fa-sticky-note mr-2 text-green-600"></i>Notes <span class="text-gray-400 font-normal">(optional)</span>
+                    </label>
+                    <textarea name="notes" rows="3"
+                        class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 font-medium resize-none"
+                        placeholder="Any additional notes for the student..."></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-4 pt-2">
+                    <a href="{{basePath}}/appointments"
+                        class="flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-6 rounded-xl transition">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </a>
+                    <button type="submit"
+                        class="flex-1 bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105">
+                        <i class="fas fa-calendar-check mr-2"></i>Schedule Appointment
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+    {{>footer}}
+</body>
+</html>

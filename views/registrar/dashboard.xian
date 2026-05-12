@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+  <title>Registrar Dashboard - MinSU DocuReg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-28px)} to{opacity:1;transform:translateY(0)} }
+    .anim-up   { animation:fadeInUp .55s ease-out both; }
+    .anim-down { animation:fadeInDown .55s ease-out both; }
+    .d1{animation-delay:.08s} .d2{animation-delay:.16s} .d3{animation-delay:.24s}
+    .d4{animation-delay:.32s} .d5{animation-delay:.40s} .d6{animation-delay:.48s}
+    .card-hover { transition:transform .3s cubic-bezier(.175,.885,.32,1.275),box-shadow .3s; }
+    .card-hover:hover { transform:translateY(-5px); box-shadow:0 20px 40px rgba(0,0,0,.1); }
+    .tr-hover { transition:background .18s; }
+    .tr-hover:hover { background:#f0fdf4; }
+  </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50 min-h-screen flex flex-col">
+  {{>navbar}}
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+
+    <!-- Header -->
+    <div class="anim-down mb-8">
+      <p class="text-purple-600 font-semibold text-sm uppercase tracking-wider mb-1">Registrar Portal</p>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-gray-800 leading-tight">Registrar Dashboard</h1>
+      <p class="text-gray-500 mt-1 text-sm">Process and manage student document requests</p>
+    </div>
+
+    <!-- Stats — 2 cols on mobile, 3 on sm, 5 on md+ -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
+      <div class="card-hover anim-up d1 bg-white rounded-2xl shadow-md p-4 sm:p-5 border-t-4 border-amber-400">
+        <p class="text-amber-500 text-xs font-bold uppercase tracking-wider mb-1">Pending</p>
+        <p class="text-3xl sm:text-4xl font-black text-amber-500">{{stats.pendingRequests}}</p>
+        <p class="text-gray-400 text-xs mt-1">Awaiting review</p>
+      </div>
+      <div class="card-hover anim-up d2 bg-white rounded-2xl shadow-md p-4 sm:p-5 border-t-4 border-blue-500">
+        <p class="text-blue-500 text-xs font-bold uppercase tracking-wider mb-1">Processing</p>
+        <p class="text-3xl sm:text-4xl font-black text-blue-500">{{stats.processingRequests}}</p>
+        <p class="text-gray-400 text-xs mt-1">Being prepared</p>
+      </div>
+      <div class="card-hover anim-up d3 bg-white rounded-2xl shadow-md p-4 sm:p-5 border-t-4 border-emerald-500">
+        <p class="text-emerald-500 text-xs font-bold uppercase tracking-wider mb-1">Ready</p>
+        <p class="text-3xl sm:text-4xl font-black text-emerald-500">{{stats.readyRequests}}</p>
+        <p class="text-gray-400 text-xs mt-1">For pickup</p>
+      </div>
+      <div class="card-hover anim-up d4 bg-white rounded-2xl shadow-md p-4 sm:p-5 border-t-4 border-violet-500">
+        <p class="text-violet-500 text-xs font-bold uppercase tracking-wider mb-1">Total</p>
+        <p class="text-3xl sm:text-4xl font-black text-violet-500">{{stats.totalRequests}}</p>
+        <p class="text-gray-400 text-xs mt-1">All requests</p>
+      </div>
+      <div class="card-hover anim-up d5 col-span-2 sm:col-span-1 bg-white rounded-2xl shadow-md p-4 sm:p-5 border-t-4 border-teal-500">
+        <p class="text-teal-500 text-xs font-bold uppercase tracking-wider mb-1">Today</p>
+        <p class="text-3xl sm:text-4xl font-black text-teal-500">{{stats.todayAppointments}}</p>
+        <p class="text-gray-400 text-xs mt-1">Appointments</p>
+      </div>
+    </div>
+
+    <!-- Quick actions — 1 col on mobile, 3 on md+ -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
+      <div class="card-hover anim-up d3 relative bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl shadow-xl p-6 text-white overflow-hidden">
+        <div class="absolute top-0 right-0 w-28 h-28 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="w-11 h-11 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-3">
+          <i class="fas fa-tasks text-white text-lg"></i>
+        </div>
+        <h3 class="text-lg font-black mb-1">Pending Requests</h3>
+        <p class="text-amber-100 text-sm mb-4">Review new document requests</p>
+        <a href="/registrar/requests" class="inline-flex items-center space-x-2 bg-white text-amber-600 font-bold px-4 py-2 rounded-xl hover:bg-amber-50 transition text-sm shadow-md">
+          <i class="fas fa-arrow-right text-xs"></i><span>View Queue</span>
+        </a>
+      </div>
+      <div class="card-hover anim-up d4 relative bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl shadow-xl p-6 text-white overflow-hidden">
+        <div class="absolute top-0 right-0 w-28 h-28 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="w-11 h-11 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-3">
+          <i class="fas fa-calendar-check text-white text-lg"></i>
+        </div>
+        <h3 class="text-lg font-black mb-1">Appointments</h3>
+        <p class="text-emerald-100 text-sm mb-4">View scheduled pickups</p>
+        <a href="/registrar/appointments" class="inline-flex items-center space-x-2 bg-white text-emerald-600 font-bold px-4 py-2 rounded-xl hover:bg-emerald-50 transition text-sm shadow-md">
+          <i class="fas fa-arrow-right text-xs"></i><span>View Schedule</span>
+        </a>
+      </div>
+      <div class="card-hover anim-up d5 relative bg-gradient-to-br from-violet-600 to-purple-600 rounded-2xl shadow-xl p-6 text-white overflow-hidden">
+        <div class="absolute top-0 right-0 w-28 h-28 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+        <div class="w-11 h-11 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-3">
+          <i class="fas fa-chart-bar text-white text-lg"></i>
+        </div>
+        <h3 class="text-lg font-black mb-1">Reports</h3>
+        <p class="text-violet-100 text-sm mb-4">View analytics and reports</p>
+        <a href="/registrar/report" class="inline-flex items-center space-x-2 bg-white text-violet-600 font-bold px-4 py-2 rounded-xl hover:bg-violet-50 transition text-sm shadow-md">
+          <i class="fas fa-arrow-right text-xs"></i><span>View Reports</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent requests -->
+    <div class="anim-up d6 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-6 sm:px-8 py-5 flex items-center justify-between">
+        <h2 class="text-white text-lg sm:text-xl font-black flex items-center">
+          <i class="fas fa-history mr-3 text-emerald-400"></i>Recent Requests
+        </h2>
+        <a href="/registrar/requests" class="text-emerald-400 hover:text-emerald-300 text-sm font-semibold transition">View all</a>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[320px]">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student</th>
+              <th class="hidden sm:table-cell px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Document</th>
+              <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="hidden md:table-cell px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-4 sm:px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            {{#each recentRequests}}
+            <tr class="tr-hover">
+              <td class="px-4 sm:px-6 py-4 text-sm font-semibold text-gray-800">
+                <div class="flex items-center space-x-2">
+                  <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-black text-xs flex-shrink-0">
+                    {{this.student.name.[0]}}
+                  </div>
+                  <span class="truncate max-w-[90px] sm:max-w-none">{{this.student.name}}</span>
+                </div>
+              </td>
+              <td class="hidden sm:table-cell px-6 py-4 text-sm text-gray-500">{{formatDocType this.documentType}}</td>
+              <td class="px-4 sm:px-6 py-4">
+                {{#switch this.status}}
+                  {{#case 'pending'}}<span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><i class="fas fa-hourglass-start mr-1"></i>Pending</span>{{/case}}
+                  {{#case 'processing'}}<span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><i class="fas fa-cog mr-1"></i>Processing</span>{{/case}}
+                  {{#case 'ready'}}<span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fas fa-check-circle mr-1"></i>Ready</span>{{/case}}
+                  {{#case 'completed'}}<span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-700"><i class="fas fa-check-double mr-1"></i>Done</span>{{/case}}
+                  {{#case 'rejected'}}<span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fas fa-times-circle mr-1"></i>Rejected</span>{{/case}}
+                {{/switch}}
+              </td>
+              <td class="hidden md:table-cell px-6 py-4 text-sm text-gray-500">{{formatDate this.createdAt}}</td>
+              <td class="px-4 sm:px-6 py-4">
+                <a href="/registrar/requests/{{this.id}}" class="inline-flex items-center text-emerald-600 hover:text-emerald-800 font-bold text-sm transition">
+                  <i class="fas fa-arrow-right mr-1"></i><span class="hidden sm:inline">Process</span>
+                </a>
+              </td>
+            </tr>
+            {{else}}
+            <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 text-sm">No recent requests</td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  {{>footer}}
+</body>
+</html>

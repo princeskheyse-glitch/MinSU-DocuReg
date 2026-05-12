@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+  <title>Register — MinSU DocuReg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes blob       { 0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%} 50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%} }
+    .anim-up   { animation:fadeInUp .5s ease-out both; }
+    .anim-float{ animation:float 3.5s ease-in-out infinite; }
+    .blob      { animation:blob 8s ease-in-out infinite; }
+    .input-field { transition:border-color .2s,box-shadow .2s; }
+    .input-field:focus { box-shadow:0 4px 14px rgba(5,150,105,.15); }
+    .btn-glow { transition:all .2s ease; }
+    .btn-glow:hover { box-shadow:0 10px 24px rgba(5,150,105,.35); transform:scale(1.02); }
+    /* Campus radio cards */
+    .campus-card input[type="radio"]:checked + .campus-label {
+      border-color: #059669;
+      background-color: #ecfdf5;
+    }
+    .campus-label { transition: border-color .2s, background .2s; }
+    .campus-label:hover { border-color: #6ee7b7; background-color: #f0fdf4; }
+  </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-100 min-h-screen py-6 px-4">
+
+  <!-- Background blobs -->
+  <div class="fixed top-10 left-10 w-64 h-64 bg-emerald-200 opacity-30 blob pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 right-10 w-56 h-56 bg-teal-200 opacity-30 blob pointer-events-none -z-10" style="animation-delay:4s"></div>
+
+  <div class="max-w-lg mx-auto anim-up">
+
+    <!-- Back to Home -->
+    <a href="/" class="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-semibold text-sm mb-4 group transition">
+      <span class="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-emerald-50 transition">
+        <i class="fas fa-arrow-left text-xs text-emerald-600"></i>
+      </span>
+      Back to Home
+    </a>
+
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-emerald-100">
+
+      <!-- Compact Header -->
+      <div class="relative bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 px-6 py-6 text-center overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+          <div class="absolute top-3 right-3 w-20 h-20 border-2 border-white rounded-full"></div>
+          <div class="absolute bottom-3 left-3 w-12 h-12 border-2 border-white rounded-full"></div>
+        </div>
+        <div class="relative anim-float mb-3">
+          <div class="w-16 h-16 rounded-full bg-white mx-auto flex items-center justify-center shadow-xl overflow-hidden">
+            <img src="/images/logo/minsu-logo.png" alt="MinSU Logo" class="w-14 h-14 object-contain">
+          </div>
+        </div>
+        <h1 class="text-white text-2xl font-black relative">Create Account</h1>
+        <p class="text-emerald-100 text-xs mt-1 relative">MinSU DocuReg — Student Registration</p>
+      </div>
+
+      <!-- Form -->
+      <div class="px-6 py-6">
+
+        {{#if error}}
+        <div class="mb-4 flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+          <i class="fas fa-exclamation-circle text-red-500 flex-shrink-0"></i>
+          <p class="text-red-600 text-sm font-medium">{{error}}</p>
+        </div>
+        {{/if}}
+
+        <form method="POST" action="/register" class="space-y-4">
+
+          <!-- ── CAMPUS SELECTION ── -->
+          <div>
+            <label class="block text-gray-700 font-bold text-sm mb-2">
+              <i class="fas fa-university text-emerald-500 mr-1.5"></i>Select Your Campus <span class="text-red-500">*</span>
+            </label>
+            <!-- Horizontal scrollable campus cards on mobile, grid on larger screens -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {{#each campuses}}
+              <label class="campus-card cursor-pointer">
+                <input type="radio" name="campusId" value="{{this.id}}" required class="sr-only">
+                <div class="campus-label border-2 border-gray-200 rounded-xl p-3 text-center h-full flex flex-col items-center justify-center gap-1.5">
+                  <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-university text-emerald-600 text-sm"></i>
+                  </div>
+                  <p class="text-xs font-bold text-gray-800 leading-tight">{{this.name}}</p>
+                  <p class="text-xs text-gray-400 leading-tight">{{this.code}}</p>
+                </div>
+              </label>
+              {{/each}}
+            </div>
+            <p class="text-gray-400 text-xs mt-1.5 flex items-center gap-1">
+              <i class="fas fa-info-circle text-emerald-400"></i> Select the campus where you are enrolled
+            </p>
+          </div>
+
+          <!-- ── NAME + STUDENT ID (side by side on sm+) ── -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="name" class="block text-gray-700 font-bold text-sm mb-1.5">Full Name <span class="text-red-500">*</span></label>
+              <div class="relative group">
+                <i class="fas fa-user absolute left-3.5 top-3 text-gray-400 group-focus-within:text-emerald-500 transition-colors text-sm"></i>
+                <input type="text" id="name" name="name" required placeholder="Juan Dela Cruz"
+                  class="input-field w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white">
+              </div>
+            </div>
+            <div>
+              <label for="studentId" class="block text-gray-700 font-bold text-sm mb-1.5">
+                Student ID <span class="text-gray-400 font-normal text-xs">(optional)</span>
+              </label>
+              <div class="relative group">
+                <i class="fas fa-id-card absolute left-3.5 top-3 text-gray-400 group-focus-within:text-emerald-500 transition-colors text-sm"></i>
+                <input type="text" id="studentId" name="studentId" placeholder="2024-001234"
+                  class="input-field w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white">
+              </div>
+            </div>
+          </div>
+
+          <!-- ── EMAIL ── -->
+          <div>
+            <label for="email" class="block text-gray-700 font-bold text-sm mb-1.5">Email Address <span class="text-red-500">*</span></label>
+            <div class="relative group">
+              <i class="fas fa-envelope absolute left-3.5 top-3 text-gray-400 group-focus-within:text-emerald-500 transition-colors text-sm"></i>
+              <input type="email" id="email" name="email" required placeholder="your@email.com"
+                class="input-field w-full pl-10 pr-3 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white">
+            </div>
+          </div>
+
+          <!-- ── PASSWORD ── -->
+          <div>
+            <label for="password" class="block text-gray-700 font-bold text-sm mb-1.5">Password <span class="text-red-500">*</span></label>
+            <div class="relative group">
+              <i class="fas fa-lock absolute left-3.5 top-3 text-gray-400 group-focus-within:text-emerald-500 transition-colors text-sm"></i>
+              <input type="password" id="password" name="password" required placeholder="••••••••" minlength="6"
+                class="input-field w-full pl-10 pr-10 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white">
+              <!-- Toggle visibility -->
+              <button type="button" onclick="togglePassword()" class="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600 transition" tabindex="-1">
+                <i class="fas fa-eye text-sm" id="pw-eye"></i>
+              </button>
+            </div>
+            <p class="text-gray-400 text-xs mt-1 flex items-center gap-1">
+              <i class="fas fa-info-circle text-emerald-400"></i> Minimum 6 characters
+            </p>
+          </div>
+
+          <!-- ── SUBMIT ── -->
+          <button type="submit"
+            class="btn-glow w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 mt-1">
+            <i class="fas fa-user-plus"></i>
+            <span>Create Account</span>
+          </button>
+        </form>
+
+        <div class="mt-5 pt-4 border-t border-gray-100 space-y-3 text-center text-sm">
+
+          <!-- Google Sign-In -->
+          <button id="google-btn" onclick="signInWithGoogle()"
+            class="w-full flex items-center justify-center gap-3 border-2 border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 rounded-xl transition shadow-sm">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+            <span>Sign up with Google</span>
+          </button>
+
+          <p class="text-gray-400 text-xs">Google sign-up will ask you to complete your profile after</p>
+
+          <p class="text-gray-500">Already have an account?
+            <a href="/login" class="text-emerald-600 font-bold hover:text-emerald-700 hover:underline transition">Sign in here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center text-gray-400 text-xs mt-4 pb-4">&copy; 2025 Mindoro State University</p>
+  </div>
+
+  <!-- Firebase JS SDK for Google Sign-In -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCSfrhbwoJcguEPsCtswunU3z9ckrcZWgQ",
+      authDomain: "minsu-docureg.firebaseapp.com",
+      projectId: "minsu-docureg"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    window.togglePassword = () => {
+      const input = document.getElementById('password');
+      const icon  = document.getElementById('pw-eye');
+      if (input.type === 'password') { input.type = 'text'; icon.className = 'fas fa-eye-slash text-sm'; }
+      else { input.type = 'password'; icon.className = 'fas fa-eye text-sm'; }
+    };
+
+    window.signInWithGoogle = async () => {
+      const btn = document.getElementById('google-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-gray-500"></i><span class="text-gray-600">Connecting...</span>';
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const idToken = await result.user.getIdToken();
+
+        const res = await fetch('/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          alert(data.error);
+          btn.disabled = false;
+          btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Sign up with Google</span>';
+        } else {
+          window.location.href = data.redirect;
+        }
+      } catch (err) {
+        console.error(err);
+        if (err.code !== 'auth/popup-closed-by-user') {
+          alert('Google sign-in failed. Please try again.');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Sign up with Google</span>';
+      }
+    };
+
+    // Highlight selected campus card
+    document.querySelectorAll('.campus-card input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        document.querySelectorAll('.campus-label').forEach(l => {
+          l.style.borderColor = '';
+          l.style.backgroundColor = '';
+        });
+        if (radio.checked) {
+          const label = radio.nextElementSibling;
+          label.style.borderColor = '#059669';
+          label.style.backgroundColor = '#ecfdf5';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

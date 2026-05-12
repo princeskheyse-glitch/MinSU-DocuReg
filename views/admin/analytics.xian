@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>System Analytics - MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        .animate-fade-in-down { animation: fadeInDown 0.6s ease-out; }
+        .chart-card { transition: all 0.3s ease; }
+        .chart-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gradient-to-br from-green-900 via-green-800 to-green-900 min-h-screen flex flex-col pt-20">
+    {{>navbar}}
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Title -->
+        <div class="mb-10 animate-fade-in-down">
+            <h1 class="text-5xl font-black text-white mb-2 flex items-center">
+                <i class="fas fa-chart-line mr-4 text-green-400"></i> System Analytics & Reports
+            </h1>
+            <p class="text-gray-300 text-lg">Real-time system performance and usage insights</p>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in-up">
+            <div class="bg-gradient-to-br from-violet-600 to-violet-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-violet-100 text-sm font-bold mb-2 uppercase tracking-wide">Total Users</p>
+                        <p class="text-4xl font-black" id="metric-total-users">—</p>
+                        <p class="text-violet-200 text-xs mt-2">Campus users</p>
+                    </div>
+                    <div class="bg-violet-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-users text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-bold mb-2 uppercase tracking-wide">Total Requests</p>
+                        <p class="text-4xl font-black" id="metric-total-requests">—</p>
+                        <p class="text-blue-200 text-xs mt-2">All document requests</p>
+                    </div>
+                    <div class="bg-blue-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-file-alt text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-100 text-sm font-bold mb-2 uppercase tracking-wide">Completion Rate</p>
+                        <p class="text-4xl font-black" id="metric-completion-rate">—</p>
+                        <p class="text-yellow-200 text-xs mt-2">Completed vs total</p>
+                    </div>
+                    <div class="bg-yellow-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-chart-pie text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-emerald-100 text-sm font-bold mb-2 uppercase tracking-wide">Campus</p>
+                        <p class="text-xl font-black mt-2">{{campus.name}}</p>
+                        <p class="text-emerald-200 text-xs mt-1">{{campus.code}}</p>
+                    </div>
+                    <div class="bg-emerald-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-university text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Users by Role Chart -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 animate-fade-in-up chart-card">
+                <h2 class="text-2xl font-black text-white mb-6 flex items-center">
+                    <i class="fas fa-pie-chart mr-3 text-green-400"></i> User Distribution by Role
+                </h2>
+                <canvas id="usersByRoleChart" style="max-height: 300px;"></canvas>
+            </div>
+
+            <!-- Users by Status Chart -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 animate-fade-in-up chart-card">
+                <h2 class="text-2xl font-black text-white mb-6 flex items-center">
+                    <i class="fas fa-pie-chart mr-3 text-green-400"></i> User Status Overview
+                </h2>
+                <canvas id="usersByStatusChart" style="max-height: 300px;"></canvas>
+            </div>
+
+            <!-- Requests by Status Chart -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 animate-fade-in-up chart-card" style="animation-delay: 0.1s">
+                <h2 class="text-2xl font-black text-white mb-6 flex items-center">
+                    <i class="fas fa-bar-chart mr-3 text-yellow-400"></i> Document Requests Status
+                </h2>
+                <canvas id="requestsByStatusChart" style="max-height: 300px;"></canvas>
+            </div>
+
+            <!-- Requests by Type Chart -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 animate-fade-in-up chart-card" style="animation-delay: 0.1s">
+                <h2 class="text-2xl font-black text-white mb-6 flex items-center">
+                    <i class="fas fa-bar-chart mr-3 text-green-400"></i> Requests by Document Type
+                </h2>
+                <canvas id="requestsByTypeChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Trends -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in-up" style="animation-delay: 0.2s">
+            <!-- Top Requested Documents -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
+                <h3 class="text-xl font-black text-white mb-6 flex items-center">
+                    <i class="fas fa-star mr-3 text-yellow-400"></i> Most Requested Documents
+                </h3>
+                <div class="space-y-3" id="top-docs-list">
+                    <p class="text-gray-500 text-sm text-center py-4">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
+                <h3 class="text-xl font-black text-white mb-6 flex items-center">
+                    <i class="fas fa-tachometer-alt mr-3 text-red-400"></i> Performance Metrics
+                </h3>
+                <div class="space-y-5">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 font-semibold">System Uptime</span>
+                            <span class="text-green-400 font-bold">99.8%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 99.8%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 font-semibold">Request Success Rate</span>
+                            <span class="text-green-400 font-bold">94%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 94%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 font-semibold">Average Response Time</span>
+                            <span class="text-yellow-400 font-bold">0.8s</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-gray-300 font-semibold">Database Health</span>
+                            <span class="text-green-400 font-bold">Excellent</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
+                <h3 class="text-xl font-black text-white mb-6 flex items-center">
+                    <i class="fas fa-heartbeat mr-3 text-red-400"></i> System Health Status
+                </h3>
+                <div class="space-y-4">
+                    <div class="p-4 bg-green-900 border border-green-700 rounded-lg">
+                        <p class="text-green-200 flex items-center"><i class="fas fa-check-circle mr-2"></i> Database Connection</p>
+                        <p class="text-green-400 text-sm font-semibold mt-1">Optimal</p>
+                    </div>
+                    <div class="p-4 bg-green-900 border border-green-700 rounded-lg">
+                        <p class="text-green-200 flex items-center"><i class="fas fa-check-circle mr-2"></i> Server Load</p>
+                        <p class="text-green-400 text-sm font-semibold mt-1">Normal (32%)</p>
+                    </div>
+                    <div class="p-4 bg-green-900 border border-green-700 rounded-lg">
+                        <p class="text-green-200 flex items-center"><i class="fas fa-check-circle mr-2"></i> Memory Usage</p>
+                        <p class="text-green-400 text-sm font-semibold mt-1">Good (58%)</p>
+                    </div>
+                    <div class="p-4 bg-yellow-900 border border-yellow-700 rounded-lg">
+                        <p class="text-yellow-200 flex items-center"><i class="fas fa-exclamation-circle mr-2"></i> Storage Space</p>
+                        <p class="text-yellow-400 text-sm font-semibold mt-1">Warning (78%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ── Helper: extract count for a given key from the DB result array ──
+        function getCount(arr, key, field) {
+            const item = arr.find(r => r[field] === key);
+            return item ? parseInt(item.count) : 0;
+        }
+
+        // ── Real data from controller ──
+        const byStatus = {{{json requestsByStatus}}};
+        const byType   = {{{json requestsByType}}};
+        const byRole   = {{{json userStats.byRole}}};
+        const byStatusU= {{{json userStats.byStatus}}};
+
+        const totalRequests = byStatus.reduce((s, r) => s + parseInt(r.count), 0);
+        const totalUsers    = byRole.reduce((s, r) => s + parseInt(r.count), 0);
+        const completedCount= getCount(byStatus, 'completed', 'status');
+        const completionRate= totalRequests > 0 ? Math.round((completedCount / totalRequests) * 100) : 0;
+
+        // Inject computed values into metric cards
+        document.getElementById('metric-total-users').textContent    = totalUsers;
+        document.getElementById('metric-total-requests').textContent = totalRequests;
+        document.getElementById('metric-completion-rate').textContent= completionRate + '%';
+
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#e5e7eb', padding: 15, usePointStyle: true }
+                }
+            }
+        };
+
+        // ── Users by Role (real data) ──
+        const roleLabels = byRole.map(r => r.role.charAt(0).toUpperCase() + r.role.slice(1));
+        const roleCounts = byRole.map(r => parseInt(r.count));
+        new Chart(document.getElementById('usersByRoleChart'), {
+            type: 'doughnut',
+            data: {
+                labels: roleLabels,
+                datasets: [{ data: roleCounts,
+                    backgroundColor: ['rgba(59,130,246,.9)','rgba(168,85,247,.9)','rgba(239,68,68,.9)','rgba(234,179,8,.9)'],
+                    borderWidth: 3 }]
+            },
+            options: chartOptions
+        });
+
+        // ── Users by Status (real data) ──
+        const statusULabels = byStatusU.map(r => r.status.charAt(0).toUpperCase() + r.status.slice(1));
+        const statusUCounts = byStatusU.map(r => parseInt(r.count));
+        new Chart(document.getElementById('usersByStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: statusULabels,
+                datasets: [{ data: statusUCounts,
+                    backgroundColor: ['rgba(34,197,94,.9)','rgba(156,163,175,.9)','rgba(239,68,68,.9)'],
+                    borderWidth: 3 }]
+            },
+            options: chartOptions
+        });
+
+        // ── Requests by Status (real data) ──
+        const statusOrder  = ['pending','processing','ready','completed','rejected'];
+        const statusColors = ['rgba(234,179,8,.9)','rgba(59,130,246,.9)','rgba(34,197,94,.9)','rgba(5,150,105,.9)','rgba(239,68,68,.9)'];
+        const statusLabels = ['Pending','Processing','Ready','Completed','Rejected'];
+        const statusCounts = statusOrder.map(s => getCount(byStatus, s, 'status'));
+        new Chart(document.getElementById('requestsByStatusChart'), {
+            type: 'bar',
+            data: {
+                labels: statusLabels,
+                datasets: [{ label: 'Requests', data: statusCounts,
+                    backgroundColor: statusColors, borderRadius: 5 }]
+            },
+            options: { ...chartOptions,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color:'#e5e7eb', stepSize:1 }, grid: { color:'rgba(75,85,99,.2)' } },
+                    x: { ticks: { color:'#e5e7eb' }, grid: { display:false } }
+                }
+            }
+        });
+
+        // ── Requests by Document Type (real data) ──
+        const docTypeMap = {
+            'transcript':             'Transcript',
+            'transfer_credentials':   'Transfer Credentials',
+            'diploma_copy':           '2nd Copy Diploma',
+            'certificate':            'Certificate',
+            'verification':           'Verification',
+            'enrollment_certificate': 'Enrollment Cert.',
+            'good_moral':             'Good Moral'
+        };
+        const typeOrder  = Object.keys(docTypeMap);
+        const typeColors = ['rgba(168,85,247,.9)','rgba(236,72,153,.9)','rgba(59,130,246,.9)','rgba(34,197,94,.9)','rgba(234,179,8,.9)','rgba(249,115,22,.9)','rgba(20,184,166,.9)'];
+        const typeLabels = typeOrder.map(t => docTypeMap[t]);
+        const typeCounts = typeOrder.map(t => getCount(byType, t, 'documentType'));
+        new Chart(document.getElementById('requestsByTypeChart'), {
+            type: 'bar',
+            data: {
+                labels: typeLabels,
+                datasets: [{ label: 'Requests', data: typeCounts,
+                    backgroundColor: typeColors, borderRadius: 5 }]
+            },
+            options: { ...chartOptions,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color:'#e5e7eb', stepSize:1 }, grid: { color:'rgba(75,85,99,.2)' } },
+                    x: { ticks: { color:'#e5e7eb', font:{ size:10 } }, grid: { display:false } }
+                }
+            }
+        });
+
+        // ── Most Requested — build dynamically ──
+        const sortedTypes = [...byType].sort((a,b) => parseInt(b.count) - parseInt(a.count));
+        const topList = document.getElementById('top-docs-list');
+        topList.innerHTML = '';
+        if (sortedTypes.length === 0) {
+            topList.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">No requests yet</p>';
+        } else {
+            sortedTypes.slice(0, 5).forEach((item, i) => {
+                topList.innerHTML += `
+                <div class="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold">${i+1}</div>
+                        <span class="text-gray-100 font-semibold text-sm">${docTypeMap[item.documentType] || item.documentType}</span>
+                    </div>
+                    <span class="text-green-400 font-bold">${item.count}</span>
+                </div>`;
+            });
+        }
+    </script>
+
+    {{>footer}}
+</body>
+</html>

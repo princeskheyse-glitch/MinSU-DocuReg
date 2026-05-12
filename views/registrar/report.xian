@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>Reports - MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        .animate-fade-in-down { animation: fadeInDown 0.6s ease-out; }
+        .chart-card { transition: all 0.3s ease; }
+        .chart-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 min-h-screen flex flex-col pt-20">
+    {{>navbar}}
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Title -->
+        <div class="mb-10 animate-fade-in-down">
+            <h1 class="text-5xl font-black text-gray-800 mb-2 flex items-center">
+                <i class="fas fa-chart-bar mr-4 text-green-600"></i> Reports
+            </h1>
+            <p class="text-gray-600 text-lg">Document processing reports and statistics</p>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in-up">
+            <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-bold mb-2 uppercase tracking-wide">Total Requests</p>
+                        <p class="text-4xl font-black">{{totalRequests}}</p>
+                    </div>
+                    <div class="bg-green-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-file-alt text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-bold mb-2 uppercase tracking-wide">Completed</p>
+                        <p class="text-4xl font-black">{{completedRequests}}</p>
+                    </div>
+                    <div class="bg-blue-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-check-circle text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-yellow-600 to-yellow-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-100 text-sm font-bold mb-2 uppercase tracking-wide">Pending</p>
+                        <p class="text-4xl font-black">{{pendingRequests}}</p>
+                    </div>
+                    <div class="bg-yellow-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-hourglass-start text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-red-600 to-red-700 rounded-2xl shadow-2xl p-6 text-white hover:shadow-3xl transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-red-100 text-sm font-bold mb-2 uppercase tracking-wide">Rejected</p>
+                        <p class="text-4xl font-black">{{rejectedRequests}}</p>
+                    </div>
+                    <div class="bg-red-500 bg-opacity-30 rounded-full p-4">
+                        <i class="fas fa-times-circle text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Request Status Chart -->
+            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200 animate-fade-in-up chart-card">
+                <h2 class="text-2xl font-black text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-pie-chart mr-3 text-green-600"></i> Request Status Distribution
+                </h2>
+                <canvas id="statusChart" style="max-height: 300px;"></canvas>
+            </div>
+
+            <!-- Document Type Chart -->
+            <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200 animate-fade-in-up chart-card">
+                <h2 class="text-2xl font-black text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-bar-chart mr-3 text-green-600"></i> Document Types Requested
+                </h2>
+                <canvas id="documentChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <!-- Request Summary Table -->
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
+            <div class="bg-gradient-to-r from-green-700 to-emerald-700 px-8 py-8">
+                <h2 class="text-white text-2xl font-black flex items-center"><i class="fas fa-list mr-3"></i> Request Summary</h2>
+                <p class="text-green-100 mt-2">Overview of all document requests</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-100 border-b-2 border-gray-300">
+                        <tr>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Student Name</th>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Document Type</th>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Status</th>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Date Requested</th>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#if requests.length}}
+                            {{#each requests}}
+                            <tr class="border-b-2 border-gray-200 hover:bg-gray-50 transition">
+                                <td class="px-8 py-5 text-gray-800 font-medium"><i class="fas fa-user mr-2 text-green-600"></i>{{this.student.name}}</td>
+                                <td class="px-8 py-5 text-gray-600 font-semibold">{{this.documentType}}</td>
+                                <td class="px-8 py-5">
+                                    {{#switch this.status}}
+                                        {{#case 'pending'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-yellow-100 text-yellow-800 inline-flex items-center"><i class="fas fa-hourglass-start mr-2"></i>Pending</span>{{/case}}
+                                        {{#case 'processing'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-800 inline-flex items-center"><i class="fas fa-spinner mr-2"></i>Processing</span>{{/case}}
+                                        {{#case 'ready'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-800 inline-flex items-center"><i class="fas fa-check-circle mr-2"></i>Ready</span>{{/case}}
+                                        {{#case 'completed'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-emerald-100 text-emerald-800 inline-flex items-center"><i class="fas fa-check-double mr-2"></i>Completed</span>{{/case}}
+                                        {{#case 'rejected'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-800 inline-flex items-center"><i class="fas fa-times-circle mr-2"></i>Rejected</span>{{/case}}
+                                    {{/switch}}
+                                </td>
+                                <td class="px-8 py-5 text-gray-600 font-medium">{{formatDate this.createdAt}}</td>
+                                <td class="px-8 py-5 text-gray-800 font-bold text-center">{{this.quantity}}</td>
+                            </tr>
+                            {{/each}}
+                        {{else}}
+                        <tr>
+                            <td colspan="5" class="px-8 py-8 text-center text-gray-500"><i class="fas fa-inbox text-3xl mb-2 block opacity-50"></i>No requests found</td>
+                        </tr>
+                        {{/if}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    {{>footer}}
+
+    <script>
+        // Status Distribution Chart
+        const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+        if (statusCtx) {
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Processing', 'Ready', 'Completed', 'Rejected'],
+                    datasets: [{
+                        data: [{{pendingRequests}}, {{processingRequests}}, {{readyRequests}}, {{completedRequests}}, {{rejectedRequests}}],
+                        backgroundColor: [
+                            '#FBBF24',
+                            '#3B82F6',
+                            '#10B981',
+                            '#059669',
+                            '#EF4444'
+                        ],
+                        borderColor: ['#FFF'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Document Type Chart
+        const docCtx = document.getElementById('documentChart')?.getContext('2d');
+        if (docCtx) {
+            new Chart(docCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Transcript', 'Diploma', 'Certificate', 'Verification', 'Enrollment', 'Good Moral'],
+                    datasets: [{
+                        label: 'Requests',
+                        data: [
+                            {{docStats.transcript}},
+                            {{docStats.diploma}},
+                            {{docStats.certificate}},
+                            {{docStats.verification}},
+                            {{docStats.enrollment_certificate}},
+                            {{docStats.good_moral}}
+                        ],
+                        backgroundColor: '#10B981',
+                        borderColor: '#059669',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>All Requests — MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .anim-up { animation:fadeInUp .5s ease-out both; }
+        .tr-hover { transition:background .15s,transform .15s; }
+        .tr-hover:hover { background:#f0fdf4; }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    {{>navbar}}
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+
+        <div class="mb-6">
+            <a href="/superadmin/dashboard" class="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-semibold text-sm mb-4 group transition">
+                <span class="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-emerald-50 transition">
+                    <i class="fas fa-arrow-left text-xs text-emerald-600"></i>
+                </span>
+                Back to Dashboard
+            </a>
+            <div class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                <i class="fas fa-crown"></i> SUPER ADMIN — GLOBAL VIEW
+            </div>
+            <h1 class="text-3xl font-black text-gray-800">All Document Requests</h1>
+            <p class="text-gray-500 text-sm mt-1">Across all 3 campuses — read-only overview</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="anim-up bg-white rounded-2xl shadow-md p-6 mb-6">
+            <form method="GET" action="/superadmin/requests" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <select name="campus" class="border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-medium">
+                    <option value="">All Campuses</option>
+                    {{#each campuses}}
+                    <option value="{{this.id}}" {{#if_eq ../filters.campus this.id}}selected{{/if_eq}}>{{this.name}}</option>
+                    {{/each}}
+                </select>
+                <select name="status" class="border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-medium">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {{#if_eq filters.status 'pending'}}selected{{/if_eq}}>Pending</option>
+                    <option value="processing" {{#if_eq filters.status 'processing'}}selected{{/if_eq}}>Processing</option>
+                    <option value="ready" {{#if_eq filters.status 'ready'}}selected{{/if_eq}}>Ready</option>
+                    <option value="completed" {{#if_eq filters.status 'completed'}}selected{{/if_eq}}>Completed</option>
+                    <option value="rejected" {{#if_eq filters.status 'rejected'}}selected{{/if_eq}}>Rejected</option>
+                </select>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+            </form>
+        </div>
+
+        <!-- Requests Table -->
+        <div class="anim-up bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-700 to-teal-700 px-6 py-5 flex items-center justify-between">
+                <h2 class="text-white font-black text-base flex items-center gap-2">
+                    <i class="fas fa-file-invoice"></i> Document Requests ({{requests.length}})
+                </h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Student</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Campus</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Document</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Purpose</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase">Date</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {{#if requests.length}}
+                        {{#each requests}}
+                        <tr class="tr-hover">
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-black text-xs flex-shrink-0">
+                                        {{this.student.name.[0]}}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">{{this.student.name}}</p>
+                                        <p class="text-xs text-gray-400 font-mono">{{this.student.studentId}}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-5 py-4">
+                                {{#if this.campus}}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                                    <i class="fas fa-university text-xs"></i> {{this.campus.code}}
+                                </span>
+                                {{else}}
+                                <span class="text-gray-400 text-xs">—</span>
+                                {{/if}}
+                            </td>
+                            <td class="px-5 py-4 text-sm text-gray-700 font-medium">{{formatDocType this.documentType}}</td>
+                            <td class="px-5 py-4 text-sm text-gray-500 max-w-xs truncate">{{this.purpose}}</td>
+                            <td class="px-5 py-4">
+                                {{#switch this.status}}
+                                    {{#case 'pending'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><i class="fas fa-hourglass-start text-xs"></i>Pending</span>{{/case}}
+                                    {{#case 'processing'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><i class="fas fa-cog text-xs"></i>Processing</span>{{/case}}
+                                    {{#case 'ready'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fas fa-check-circle text-xs"></i>Ready</span>{{/case}}
+                                    {{#case 'completed'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-700"><i class="fas fa-check-double text-xs"></i>Completed</span>{{/case}}
+                                    {{#case 'rejected'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fas fa-times-circle text-xs"></i>Rejected</span>{{/case}}
+                                {{/switch}}
+                            </td>
+                            <td class="px-5 py-4 text-xs text-gray-400">{{formatDate this.createdAt}}</td>
+                            <td class="px-5 py-4">
+                                <a href="/superadmin/requests/{{this.id}}" class="text-emerald-600 hover:text-emerald-800 font-bold text-xs transition inline-flex items-center gap-1">
+                                    View <i class="fas fa-arrow-right text-xs"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {{/each}}
+                        {{else}}
+                        <tr>
+                            <td colspan="7" class="px-5 py-16 text-center">
+                                <i class="fas fa-inbox text-4xl text-gray-300 mb-3 block"></i>
+                                <p class="text-gray-400 font-semibold">No requests found</p>
+                                <p class="text-gray-300 text-sm mt-1">Try adjusting your filters</p>
+                            </td>
+                        </tr>
+                        {{/if}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    {{>footer}}
+</body>
+</html>

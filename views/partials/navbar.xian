@@ -1,0 +1,372 @@
+<nav class="fixed w-full top-0 z-50 bg-gradient-to-r from-emerald-700 via-green-700 to-teal-700 shadow-xl">
+<style>html,body{max-width:100%;overflow-x:hidden}*,*::before,*::after{box-sizing:border-box}img,video,iframe{max-width:100%}</style>
+  <div class="h-0.5 w-full bg-gradient-to-r from-emerald-300 via-green-200 to-teal-300 opacity-60"></div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+
+      <!-- Logo -->
+      <a href="/" class="flex items-center space-x-2 group min-w-0">
+        <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0 overflow-hidden">
+          <img src="/images/logo/minsu-logo.png" alt="MinSU" class="w-8 h-8 object-contain">
+        </div>
+        <div class="hidden sm:block min-w-0">
+          <p class="text-white font-black text-base leading-none truncate">MinSU DocuReg</p>
+          <p class="text-emerald-200 text-xs">Document Management</p>
+        </div>
+      </a>
+
+      <!-- Desktop nav (md+) -->
+      <div class="hidden md:flex items-center space-x-1">
+        {{#if user}}
+          <div class="flex items-center space-x-2 bg-white bg-opacity-10 rounded-full px-4 py-1.5 mr-3 border border-white border-opacity-20">
+            <div class="w-7 h-7 rounded-full bg-emerald-400 flex items-center justify-center text-white text-xs font-black flex-shrink-0">{{user.name.[0]}}</div>
+            <div class="flex flex-col leading-tight">
+              <span class="text-white text-sm font-semibold">{{user.name}}</span>
+              {{#if user.campus}}<span class="text-emerald-200 text-xs">{{user.campus.code}}</span>{{/if}}
+            </div>
+          </div>
+          {{#if_eq user.role 'superadmin'}}
+            <a href="/superadmin/dashboard" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-tachometer-alt mr-1.5"></i>Dashboard</a>
+            <a href="/superadmin/campuses" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-university mr-1.5"></i>Campuses</a>
+            <a href="/superadmin/users" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-users mr-1.5"></i>Users</a>
+            <a href="/superadmin/analytics" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-chart-line mr-1.5"></i>Analytics</a>
+          {{/if_eq}}
+          {{#if_eq user.role 'student'}}
+            <a href="/student/dashboard" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-tachometer-alt mr-1.5"></i>Dashboard</a>
+            <a href="/student/requests" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-file-alt mr-1.5"></i>My Requests</a>
+          {{/if_eq}}
+          {{#if_eq user.role 'registrar'}}
+            <a href="/registrar/dashboard" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-tachometer-alt mr-1.5"></i>Dashboard</a>
+            <a href="/registrar/requests" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-tasks mr-1.5"></i>Requests</a>
+            <a href="/registrar/appointments" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-calendar-check mr-1.5"></i>Appointments</a>
+          {{/if_eq}}
+          {{#if_eq user.role 'admin'}}
+            <a href="/admin/dashboard" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-tachometer-alt mr-1.5"></i>Dashboard</a>
+            <a href="/admin/requests" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-tasks mr-1.5"></i>Requests</a>
+            <a href="/admin/appointments" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-calendar-check mr-1.5"></i>Appointments</a>
+            <a href="/admin/users" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-users mr-1.5"></i>Users</a>
+            <a href="/admin/analytics" class="nav-link text-emerald-100 hover:text-white hover:bg-white hover:bg-opacity-15 px-4 py-2 rounded-lg font-semibold transition text-sm"><i class="fas fa-chart-line mr-1.5"></i>Analytics</a>
+          {{/if_eq}}
+          <button onclick="openNotifModal()" class="relative text-white p-2 rounded-lg hover:bg-white hover:bg-opacity-15 transition ml-1">
+            <i class="fas fa-bell text-lg"></i>
+            <span id="notif-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-black rounded-full flex items-center justify-center leading-none">0</span>
+          </button>
+          <a href="/logout" class="ml-2 flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold transition text-sm shadow-md">
+            <i class="fas fa-sign-out-alt mr-1.5"></i>Logout
+          </a>
+        {{/if}}
+      </div>
+
+      <!-- Mobile right: bell + hamburger -->
+      <div class="flex md:hidden items-center gap-2">
+        {{#if user}}
+        <button onclick="openNotifModal()" class="relative text-white p-2 rounded-lg hover:bg-white hover:bg-opacity-15 transition" aria-label="Notifications">
+          <i class="fas fa-bell text-xl"></i>
+          <span id="notif-badge-mobile" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-black rounded-full flex items-center justify-center leading-none">0</span>
+        </button>
+        {{/if}}
+        <button onclick="openSidePanel()" class="text-white p-2 rounded-lg hover:bg-white hover:bg-opacity-15 transition" aria-label="Open menu">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     MOBILE SIDE PANEL (slide in from right)
+     ══════════════════════════════════════════ -->
+<div id="side-panel-overlay" style="display:none" class="fixed inset-0 z-[9990]">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeSidePanel()"></div>
+  <!-- Drawer -->
+  <div id="side-panel-drawer" class="absolute top-0 right-0 h-full w-72 bg-gradient-to-b from-emerald-800 to-teal-900 shadow-2xl flex flex-col" style="transform:translateX(100%); transition:transform 0.28s cubic-bezier(0.32,0.72,0,1);">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white border-opacity-10">
+      <div class="flex items-center gap-3">
+        {{#if user}}
+        <div class="w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center text-white font-black text-base flex-shrink-0">
+          {{user.name.[0]}}
+        </div>
+        <div class="min-w-0">
+          <p class="text-white font-bold text-sm truncate">{{user.name}}</p>
+          <p class="text-emerald-300 text-xs capitalize">{{user.role}}</p>
+        </div>
+        {{/if}}
+      </div>
+      <button onclick="closeSidePanel()" class="text-white hover:text-emerald-200 transition p-1 flex-shrink-0">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      {{#if user}}
+      {{#if_eq user.role 'student'}}
+        <a href="/student/dashboard" onclick="closeSidePanel()" class="side-link"><i class="fas fa-tachometer-alt w-5"></i><span>Dashboard</span></a>
+        <a href="/student/requests" onclick="closeSidePanel()" class="side-link"><i class="fas fa-file-alt w-5"></i><span>My Requests</span></a>
+        <a href="/student/request/new" onclick="closeSidePanel()" class="side-link"><i class="fas fa-plus-circle w-5"></i><span>Request Document</span></a>
+      {{/if_eq}}
+      {{#if_eq user.role 'registrar'}}
+        <a href="/registrar/dashboard" onclick="closeSidePanel()" class="side-link"><i class="fas fa-tachometer-alt w-5"></i><span>Dashboard</span></a>
+        <a href="/registrar/requests" onclick="closeSidePanel()" class="side-link"><i class="fas fa-tasks w-5"></i><span>Requests</span></a>
+        <a href="/registrar/appointments" onclick="closeSidePanel()" class="side-link"><i class="fas fa-calendar-check w-5"></i><span>Appointments</span></a>
+        <a href="/registrar/report" onclick="closeSidePanel()" class="side-link"><i class="fas fa-chart-bar w-5"></i><span>Reports</span></a>
+      {{/if_eq}}
+      {{#if_eq user.role 'admin'}}
+        <a href="/admin/dashboard" onclick="closeSidePanel()" class="side-link"><i class="fas fa-tachometer-alt w-5"></i><span>Dashboard</span></a>
+        <a href="/admin/requests" onclick="closeSidePanel()" class="side-link"><i class="fas fa-tasks w-5"></i><span>Requests</span></a>
+        <a href="/admin/appointments" onclick="closeSidePanel()" class="side-link"><i class="fas fa-calendar-check w-5"></i><span>Appointments</span></a>
+        <a href="/admin/users" onclick="closeSidePanel()" class="side-link"><i class="fas fa-users w-5"></i><span>Users</span></a>
+        <a href="/admin/analytics" onclick="closeSidePanel()" class="side-link"><i class="fas fa-chart-line w-5"></i><span>Analytics</span></a>
+      {{/if_eq}}
+      {{#if_eq user.role 'superadmin'}}
+        <a href="/superadmin/dashboard" onclick="closeSidePanel()" class="side-link"><i class="fas fa-tachometer-alt w-5"></i><span>Dashboard</span></a>
+        <a href="/superadmin/campuses" onclick="closeSidePanel()" class="side-link"><i class="fas fa-university w-5"></i><span>Campuses</span></a>
+        <a href="/superadmin/users" onclick="closeSidePanel()" class="side-link"><i class="fas fa-users w-5"></i><span>Users</span></a>
+        <a href="/superadmin/analytics" onclick="closeSidePanel()" class="side-link"><i class="fas fa-chart-line w-5"></i><span>Analytics</span></a>
+      {{/if_eq}}
+      {{/if}}
+    </nav>
+
+    <!-- Footer actions -->
+    <div class="px-3 py-4 border-t border-white border-opacity-10 space-y-2">
+      <button onclick="closeSidePanel(); setTimeout(openNotifModal,50);" class="side-link w-full justify-between">
+        <div class="flex items-center gap-3"><i class="fas fa-bell w-5"></i><span>Notifications</span></div>
+        <span id="notif-badge-menu" class="hidden bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">0</span>
+      </button>
+      <a href="/logout" class="flex items-center gap-3 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition text-sm">
+        <i class="fas fa-sign-out-alt w-5"></i><span>Logout</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     NOTIFICATION MODAL (fixed, works everywhere)
+     ══════════════════════════════════════════ -->
+<div id="notif-modal" style="display:none" class="fixed inset-0 z-[9998] flex items-end sm:items-center justify-center">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeNotifModal()"></div>
+  <div id="notif-modal-panel" class="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl z-10 flex flex-col" style="max-height:85vh; animation:slideUp 0.3s cubic-bezier(0.32,0.72,0,1) both;">
+    <div class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-t-3xl sm:rounded-t-2xl flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-bell text-white"></i>
+        <span class="text-white font-black text-base">Notifications</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="markAllRead()" class="text-emerald-100 hover:text-white text-xs font-semibold transition">Mark all read</button>
+        <button onclick="closeNotifModal()" class="text-white hover:text-emerald-200 transition p-1"><i class="fas fa-times text-lg"></i></button>
+      </div>
+    </div>
+    <div class="sm:hidden flex justify-center pt-2 pb-1 flex-shrink-0">
+      <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+    </div>
+    <div id="notif-list" class="overflow-y-auto divide-y divide-gray-100 flex-1">
+      <div class="flex items-center justify-center py-12">
+        <i class="fas fa-spinner fa-spin text-emerald-500 text-2xl"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Side panel ──
+  function openSidePanel() {
+    const overlay = document.getElementById('side-panel-overlay');
+    const drawer  = document.getElementById('side-panel-drawer');
+    if (!overlay) return;
+    if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
+    overlay.style.display = 'block';
+    drawer.style.transform = 'translateX(0)';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidePanel() {
+    const overlay = document.getElementById('side-panel-overlay');
+    const drawer  = document.getElementById('side-panel-drawer');
+    if (!overlay) return;
+    drawer.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 280);
+  }
+
+  // ── Notification modal ──
+  const notifIcons = {
+    request_submitted:     { icon: 'fa-file-plus',      color: 'text-blue-500' },
+    request_processing:    { icon: 'fa-cog',            color: 'text-blue-500' },
+    request_ready:         { icon: 'fa-box-open',       color: 'text-emerald-500' },
+    request_completed:     { icon: 'fa-check-double',   color: 'text-teal-500' },
+    request_rejected:      { icon: 'fa-times-circle',   color: 'text-red-500' },
+    appointment_scheduled: { icon: 'fa-calendar-check', color: 'text-indigo-500' },
+    appointment_updated:   { icon: 'fa-calendar-alt',   color: 'text-purple-500' }
+  };
+
+  function openNotifModal() {
+    const modal = document.getElementById('notif-modal');
+    if (!modal) return;
+    if (modal.parentElement !== document.body) document.body.appendChild(modal);
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadNotifications();
+  }
+
+  function closeNotifModal() {
+    const modal = document.getElementById('notif-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function toggleNotifPanel() { openNotifModal(); }
+
+  function renderNotifItem(n) {
+    const info = notifIcons[n.type] || { icon: 'fa-bell', color: 'text-emerald-500' };
+    const createdAt = n.createdAt?._seconds ? new Date(n.createdAt._seconds * 1000) : new Date(n.createdAt);
+    const diffMins = Math.floor((Date.now() - createdAt) / 60000);
+    const timeLabel = diffMins < 1 ? 'Just now'
+      : diffMins < 60 ? `${diffMins}m ago`
+      : diffMins < 1440 ? `${Math.floor(diffMins/60)}h ago`
+      : createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const bg = n.isRead ? '' : 'bg-emerald-50';
+    return `<a href="${n.link || '#'}" onclick="markOneRead('${n.id}'); closeNotifModal();"
+      class="flex items-start gap-3 px-5 py-4 hover:bg-gray-50 active:bg-gray-100 transition ${bg} block">
+      <div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <i class="fas ${info.icon} ${info.color}"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-bold text-gray-800 leading-tight">${n.title}</p>
+        <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">${n.message}</p>
+        <p class="text-xs text-gray-400 mt-1">${timeLabel}</p>
+      </div>
+      ${!n.isRead ? '<div class="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0 mt-2"></div>' : ''}
+    </a>`;
+  }
+
+  function updateBadge(count) {
+    ['notif-badge', 'notif-badge-mobile', 'notif-badge-menu'].forEach(id => {
+      const b = document.getElementById(id);
+      if (!b) return;
+      if (count > 0) { b.textContent = count > 99 ? '99+' : count; b.classList.remove('hidden'); }
+      else { b.classList.add('hidden'); }
+    });
+  }
+
+  async function loadNotifications() {
+    const list = document.getElementById('notif-list');
+    if (!list) return;
+    list.innerHTML = '<div class="flex items-center justify-center py-12"><i class="fas fa-spinner fa-spin text-emerald-500 text-2xl"></i></div>';
+    try {
+      const res = await fetch('/notifications');
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      updateBadge(data.unreadCount);
+      if (!data.notifications || !data.notifications.length) {
+        list.innerHTML = `<div class="flex flex-col items-center justify-center py-16 px-6 text-center">
+          <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <i class="fas fa-bell-slash text-gray-400 text-2xl"></i>
+          </div>
+          <p class="text-gray-500 font-semibold">No notifications yet</p>
+          <p class="text-gray-400 text-sm mt-1">You'll see updates here when something happens.</p>
+        </div>`;
+      } else {
+        list.innerHTML = data.notifications.map(renderNotifItem).join('');
+      }
+    } catch (_) {
+      list.innerHTML = `<div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+        <i class="fas fa-exclamation-circle text-red-400 text-2xl mb-3"></i>
+        <p class="text-gray-500 text-sm">Could not load notifications.</p>
+        <button onclick="loadNotifications()" class="mt-3 text-emerald-600 font-bold text-sm hover:underline">Try again</button>
+      </div>`;
+    }
+  }
+
+  async function markAllRead() {
+    await fetch('/notifications/read-all', { method: 'POST' });
+    updateBadge(0);
+    document.querySelectorAll('#notif-list a').forEach(el => {
+      el.classList.remove('bg-emerald-50');
+      el.querySelector('.bg-emerald-500.rounded-full')?.remove();
+    });
+  }
+
+  async function markOneRead(id) {
+    await fetch(`/notifications/${id}/read`, { method: 'POST' });
+  }
+
+  function playNotifSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+    } catch (_) {}
+  }
+
+  function showToast(title, message, type) {
+    const info = notifIcons[type] || { icon: 'fa-bell', color: 'text-emerald-500' };
+    const t = document.createElement('div');
+    t.className = 'fixed bottom-5 right-4 left-4 sm:left-auto sm:w-80 z-[9999] flex items-start gap-3 bg-white border border-gray-200 rounded-2xl shadow-2xl px-4 py-3 notif-toast-in';
+    t.innerHTML = `<div class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0"><i class="fas ${info.icon} ${info.color}"></i></div>
+      <div class="min-w-0 flex-1"><p class="font-bold text-gray-800 text-sm">${title}</p><p class="text-gray-500 text-xs mt-0.5">${message}</p></div>
+      <button onclick="this.parentElement.remove()" class="text-gray-300 hover:text-gray-500 p-1 flex-shrink-0"><i class="fas fa-times text-xs"></i></button>`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 6000);
+  }
+
+  if (typeof EventSource !== 'undefined') {
+    const es = new EventSource('/notifications/stream');
+    es.onmessage = (e) => {
+      try {
+        const n = JSON.parse(e.data);
+        playNotifSound();
+        showToast(n.title, n.message, n.type);
+        const cur = parseInt(document.getElementById('notif-badge')?.textContent) || 0;
+        updateBadge(cur + 1);
+        const modal = document.getElementById('notif-modal');
+        if (modal?.style.display !== 'none' && modal?.style.display !== '') {
+          const list = document.getElementById('notif-list');
+          if (list) { list.querySelector('.fa-bell-slash')?.closest('div')?.remove(); list.insertAdjacentHTML('afterbegin', renderNotifItem({ ...n, isRead: false })); }
+        }
+      } catch (_) {}
+    };
+    es.onerror = () => {};
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('/notifications').then(r => r.json()).then(d => updateBadge(d.unreadCount)).catch(() => {});
+  });
+</script>
+
+<style>
+  /* Side panel drawer transition */
+  @keyframes slideUp   { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @media (min-width: 640px) {
+    #notif-modal-panel { animation: fadeScale 0.2s ease-out both !important; }
+  }
+
+  /* Side nav links */
+  .side-link {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.75rem 1rem; border-radius: 0.75rem;
+    color: rgba(255,255,255,0.85); font-weight: 600; font-size: 0.9rem;
+    transition: background 0.15s, color 0.15s; text-decoration: none;
+  }
+  .side-link:hover, .side-link:active { background: rgba(255,255,255,0.15); color: #fff; }
+
+  /* Toast */
+  @keyframes toastIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .notif-toast-in { animation: toastIn 0.3s ease-out; }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { overflow-x: hidden; max-width: 100vw; }
+  body { overflow-x: hidden; max-width: 100%; }
+  img, video, iframe { max-width: 100%; }
+</style>

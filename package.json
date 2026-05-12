@@ -1,0 +1,27 @@
+{
+  "name": "cms",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "xian-start": "node index.js",
+    "xian": "nodemon --ext js,xian,hbs index.js",
+    "seed": "node seed.js",
+    "create:model": "node create.js model",
+    "create:controller": "node create.js controller"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "express-session": "^1.17.3",
+    "firebase-admin": "^12.7.0",
+    "hbs": "^4.2.0",
+    "inquirer": "^9.2.15",
+    "nodemailer": "^7.0.11"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

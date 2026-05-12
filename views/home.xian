@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>Home - MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+            }
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.8s ease-out;
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        .animate-slide-in-left {
+            animation: slideInLeft 0.8s ease-out;
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .hover-lift:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        .btn-pulse {
+            transition: all 0.3s ease;
+        }
+        .btn-pulse:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+        .hover-lift:hover .feature-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gray-50">
+
+    <!-- ══════════════════════════════════════════
+         STICKY NAVBAR
+    ══════════════════════════════════════════ -->
+    <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent" aria-label="Main navigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2 group">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0 overflow-hidden">
+                        <img src="/images/logo/minsu-logo.png" alt="MinSU" class="w-9 h-9 object-contain">
+                    </div>
+                    <span class="text-white font-black text-lg drop-shadow">MinSU DocuReg</span>
+                </a>
+
+                <!-- Desktop nav links -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="#hero"     class="nav-link text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                        <i class="fas fa-home mr-1.5 text-xs"></i>Home
+                    </a>
+                    <a href="#features" class="nav-link text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                        <i class="fas fa-star mr-1.5 text-xs"></i>Features
+                    </a>
+                    <a href="#documents" class="nav-link text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                        <i class="fas fa-file-alt mr-1.5 text-xs"></i>Documents
+                    </a>
+                    <a href="#contact"  class="nav-link text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                        <i class="fas fa-envelope mr-1.5 text-xs"></i>Contact
+                    </a>
+                    <div class="w-px h-5 bg-white bg-opacity-30 mx-2"></div>
+                    <a href="/login"    class="text-white text-sm font-bold px-4 py-2 rounded-lg border border-white border-opacity-40 hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                        <i class="fas fa-sign-in-alt mr-1.5 text-xs"></i>Sign In
+                    </a>
+                    <a href="/register" class="text-emerald-800 bg-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-emerald-50 transition-all duration-200 shadow-md ml-1">
+                        <i class="fas fa-user-plus mr-1.5 text-xs"></i>Register
+                    </a>
+                </div>
+
+                <!-- Mobile toggle -->
+                <button id="mobile-toggle" class="md:hidden text-white p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition" aria-label="Toggle menu">
+                    <i class="fas fa-bars text-lg" id="mobile-icon"></i>
+                </button>
+            </div>
+
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4 pt-2 border-t border-white border-opacity-20">
+                <div class="flex flex-col gap-1">
+                    <a href="#hero"      class="text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-white hover:bg-opacity-20 transition flex items-center gap-2"><i class="fas fa-home w-4"></i>Home</a>
+                    <a href="#features"  class="text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-white hover:bg-opacity-20 transition flex items-center gap-2"><i class="fas fa-star w-4"></i>Features</a>
+                    <a href="#documents" class="text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-white hover:bg-opacity-20 transition flex items-center gap-2"><i class="fas fa-file-alt w-4"></i>Documents</a>
+                    <a href="#contact"   class="text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-white hover:bg-opacity-20 transition flex items-center gap-2"><i class="fas fa-envelope w-4"></i>Contact</a>
+                    <div class="border-t border-white border-opacity-20 my-2"></div>
+                    <a href="/login"     class="text-white text-sm font-bold px-4 py-2.5 rounded-lg border border-white border-opacity-40 hover:bg-white hover:bg-opacity-20 transition flex items-center gap-2"><i class="fas fa-sign-in-alt w-4"></i>Sign In</a>
+                    <a href="/register"  class="text-emerald-800 bg-white text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-emerald-50 transition flex items-center gap-2 shadow"><i class="fas fa-user-plus w-4"></i>Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div id="hero" class="relative text-white py-32 overflow-hidden min-h-screen flex items-center"
+         style="background: linear-gradient(135deg, rgba(4,120,87,0.82) 0%, rgba(5,150,105,0.75) 40%, rgba(15,118,110,0.80) 100%), url('https://scontent.fmnl17-7.fna.fbcdn.net/v/t39.30808-6/495463933_1227549652713773_1837788906881799527_n.png?_nc_cat=108&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeEU1az4k5Wk2u134Jrg9Gy1XPDmhUcuFDdc8OaFRy4UNwYxCEOckDqN5T2gjPPaJdF7BVRRCB4xEhzZCqWPmBZo&_nc_ohc=vSIax2M9lzcQ7kNvwH6qwH4&_nc_oc=AdrEyD7JvjfdSyRQii4hc9QaY9-qX93wAXNfFV7k2NjTdsQmWzfM8FukfKXJJ9pqcz8&_nc_zt=23&_nc_ht=scontent.fmnl17-7.fna&_nc_gid=k1SLaVMFjsqZuDWKx9ENZw&_nc_ss=7a3a8&oh=00_Af1IziH_ZiBv_6onCx8AHuIWTCYAJeBDVHskcjc2SypZTQ&oe=69D866FD') center center / cover no-repeat;">
+
+        <!-- Subtle dark vignette at edges -->
+        <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 pointer-events-none"></div>
+
+        <!-- Decorative blobs -->
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-emerald-400 opacity-10 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-teal-400 opacity-10 rounded-full blur-3xl animate-pulse pointer-events-none"></div>
+
+        <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <!-- Logo badge -->
+            <div class="mb-6 animate-float inline-block">
+                <div class="w-28 h-28 rounded-full bg-white mx-auto flex items-center justify-center shadow-2xl overflow-hidden">
+                    <img src="/images/logo/minsu-logo.png" alt="MinSU Logo" class="w-24 h-24 object-contain">
+                </div>
+            </div>
+
+            <!-- University label -->
+            <p class="text-emerald-200 font-semibold text-sm uppercase tracking-widest mb-3 animate-fade-in-down">
+                Mindoro State University
+            </p>
+
+            <h1 class="text-4xl sm:text-6xl md:text-8xl font-black mb-4 animate-fade-in-down drop-shadow-2xl tracking-tight">
+                MinSU DocuReg
+            </h1>
+            <p class="text-lg md:text-2xl text-emerald-100 mb-10 animate-fade-in-up max-w-2xl mx-auto leading-relaxed drop-shadow px-4">
+                The official document management system of the Registrar's Office
+            </p>
+
+            <!-- CTA buttons -->
+            <div class="flex gap-3 justify-center flex-wrap animate-fade-in-up px-4">
+                <a href="/login"
+                   class="group flex items-center space-x-2 bg-white text-emerald-700 font-black px-6 py-3.5 rounded-2xl btn-pulse shadow-2xl hover:bg-emerald-50 text-base sm:text-lg border-2 border-white border-opacity-80 w-full sm:w-auto justify-center">
+                    <i class="fas fa-sign-in-alt group-hover:translate-x-1 transition-transform"></i>
+                    <span>Sign In</span>
+                </a>
+                <a href="/register"
+                   class="group flex items-center space-x-2 bg-white bg-opacity-15 backdrop-blur-sm text-white font-black px-6 py-3.5 rounded-2xl btn-pulse shadow-2xl hover:bg-white hover:bg-opacity-25 text-base sm:text-lg border-2 border-white border-opacity-40 w-full sm:w-auto justify-center">
+                    <i class="fas fa-user-plus group-hover:translate-x-1 transition-transform"></i>
+                    <span>Register Now</span>
+                </a>
+            </div>
+
+            <!-- Scroll hint -->
+            <div class="mt-16 animate-bounce opacity-60">
+                <i class="fas fa-chevron-down text-white text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <h2 class="text-4xl md:text-5xl font-black text-center mb-16 animate-fade-in-down">Key Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 hover-lift">
+                <div class="feature-icon text-green-600 text-5xl mb-4">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-gray-800">Easy Document Requests</h3>
+                <p class="text-gray-600 leading-relaxed">Submit document requests online with just a few clicks. Track your requests in real-time with instant notifications.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 hover-lift" style="animation-delay: 0.1s">
+                <div class="feature-icon text-green-600 text-5xl mb-4">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-gray-800">Appointment Scheduling</h3>
+                <p class="text-gray-600 leading-relaxed">Schedule appointments for document pickup and consultations directly through the system. No more waiting.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 hover-lift" style="animation-delay: 0.2s">
+                <div class="feature-icon text-green-600 text-5xl mb-4">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-gray-800">Fast Processing</h3>
+                <p class="text-gray-600 leading-relaxed">Streamlined registrar workflow ensures quick document processing and delivery to your hands.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Types Section -->
+    <div id="documents" class="bg-gradient-to-b from-gray-100 to-white py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl md:text-5xl font-black text-center mb-16 animate-fade-in-down">Available Documents</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-8 shadow-md hover-lift hover:bg-green-50 transition-colors">
+                    <div class="feature-icon text-green-600 text-4xl mb-4">
+                        <i class="fas fa-scroll"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2 text-gray-800">Transcript of Records</h4>
+                    <p class="text-gray-600 text-sm">Official academic transcript with grades and credits</p>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-md hover-lift hover:bg-green-50 transition-colors">
+                    <div class="feature-icon text-green-600 text-4xl mb-4">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2 text-gray-800">Diploma/Certificate</h4>
+                    <p class="text-gray-600 text-sm">Official diploma or program completion certificate</p>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-md hover-lift hover:bg-green-50 transition-colors">
+                    <div class="feature-icon text-green-600 text-4xl mb-4">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2 text-gray-800">Verification Letter</h4>
+                    <p class="text-gray-600 text-sm">Letter verifying enrollment, graduation, or academic standing</p>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-md hover-lift hover:bg-yellow-50 transition-colors">
+                    <div class="feature-icon text-yellow-600 text-4xl mb-4">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2 text-gray-800">Enrollment Certificate</h4>
+                    <p class="text-gray-600 text-sm">Proof of current enrollment status</p>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-md hover-lift hover:bg-green-50 transition-colors">
+                    <div class="feature-icon text-green-600 text-4xl mb-4">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2 text-gray-800">Good Moral Certificate</h4>
+                    <p class="text-gray-600 text-sm">Certificate of good moral character</p>
+                </div>
+                <div class="bg-white rounded-2xl p-8 shadow-md hover-lift hover:bg-green-50 transition-colors">
+                    <div class="feature-icon text-green-600 text-4xl mb-4">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2 text-gray-800">Other Documents</h4>
+                    <p class="text-gray-600 text-sm">Customized documents per request</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="relative bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white py-24 overflow-hidden">
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white opacity-10 rounded-full blur-3xl"></div>
+        </div>
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-black mb-4 animate-fade-in-down">Ready to Get Started?</h2>
+            <p class="text-lg md:text-xl text-green-100 mb-8 animate-fade-in-up">Sign up now and submit your first document request today</p>
+            <a href="/register" class="inline-block bg-white text-green-600 font-bold px-12 py-5 rounded-xl hover:bg-green-50 btn-pulse shadow-xl text-lg">
+                <i class="fas fa-arrow-right"></i> Create Your Account
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 text-gray-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="hover-lift p-4 rounded-lg">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-emerald-600 rounded-xl p-1.5 shadow-lg">
+                            <img src="/images/logo/minsu-logo.png" alt="MinSU Logo" class="w-7 h-7 object-contain">
+                        </div>
+                        <h3 class="text-white font-bold text-lg">MinSU DocuReg</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Document management system for Mindoro State University Registrar Office</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/login" class="text-gray-400 hover:text-white transition-colors duration-300"><i class="fas fa-chevron-right text-xs mr-2"></i>Login</a></li>
+                        <li><a href="/register" class="text-gray-400 hover:text-white transition-colors duration-300"><i class="fas fa-chevron-right text-xs mr-2"></i>Register</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300"><i class="fas fa-chevron-right text-xs mr-2"></i>Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-300"><i class="fas fa-chevron-right text-xs mr-2"></i>Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fas fa-envelope text-green-400"></i> info@minsu.edu.ph</li>
+                        <li><i class="fas fa-phone text-green-400"></i> +63-123-456-7890</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
+                <p>&copy; 2025 Mindoro State University. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // ── Navbar: solid background when scrolled past hero ──
+        const nav = document.getElementById('main-nav');
+        const sections = document.querySelectorAll('div[id], footer[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function updateNav() {
+            if (window.scrollY > 60) {
+                nav.classList.remove('bg-transparent');
+                nav.classList.add('bg-emerald-800', 'shadow-xl');
+            } else {
+                nav.classList.add('bg-transparent');
+                nav.classList.remove('bg-emerald-800', 'shadow-xl');
+            }
+        }
+
+        // ── Active link highlight based on scroll position ──
+        function updateActiveLink() {
+            let current = '';
+            sections.forEach(section => {
+                const top = section.offsetTop - 80;
+                if (window.scrollY >= top) current = section.id;
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('bg-white', 'bg-opacity-20', 'text-white');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('bg-white', 'bg-opacity-20');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', () => { updateNav(); updateActiveLink(); });
+        updateNav();
+
+        // ── Mobile menu toggle ──
+        const toggle = document.getElementById('mobile-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileIcon = document.getElementById('mobile-icon');
+        toggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileIcon.className = mobileMenu.classList.contains('hidden')
+                ? 'fas fa-bars text-lg'
+                : 'fas fa-times text-lg';
+        });
+
+        // ── Close mobile menu on link click ──
+        mobileMenu.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileIcon.className = 'fas fa-bars text-lg';
+            });
+        });
+
+        // ── Smooth scroll for all anchor links ──
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

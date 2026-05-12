@@ -1,0 +1,81 @@
+<nav class="bg-gradient-to-r from-green-600 to-green-800 shadow-lg fixed w-full top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <div class="bg-white rounded-lg p-2">
+                    <i class="fas fa-file-contract text-green-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg">MinSU DocuReg</h1>
+                    <p class="text-green-100 text-xs">Document Management</p>
+                </div>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-6">
+                {{#if user}}
+                    <span class="text-green-100 text-sm">
+                        <i class="fas fa-user-circle"></i> {{user.name}}
+                    </span>
+                    
+                    {{#if_eq user.role 'student'}}
+                        <a href="/student/dashboard" class="text-green-100 hover:text-white transition">Dashboard</a>
+                        <a href="/student/requests" class="text-green-100 hover:text-white transition">My Requests</a>
+                    {{/if_eq}}
+                    
+                    {{#if_eq user.role 'registrar'}}
+                        <a href="/registrar/dashboard" class="text-green-100 hover:text-white transition">Dashboard</a>
+                        <a href="/registrar/requests" class="text-green-100 hover:text-white transition">Requests</a>
+                        <a href="/registrar/appointments" class="text-green-100 hover:text-white transition">Appointments</a>
+                    {{/if_eq}}
+                    
+                    {{#if_eq user.role 'admin'}}
+                        <a href="/admin/dashboard" class="text-green-100 hover:text-white transition">Dashboard</a>
+                        <a href="/admin/users" class="text-green-100 hover:text-white transition">Users</a>
+                        <a href="/admin/analytics" class="text-green-100 hover:text-white transition">Analytics</a>
+                    {{/if_eq}}
+                    
+                    <a href="/logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition font-semibold">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                {{/if}}
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="md:hidden text-white text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-green-700 pb-4">
+            {{#if user}}
+                <div class="px-4 py-2 text-green-100 border-b border-green-600">
+                    <i class="fas fa-user-circle"></i> {{user.name}}
+                </div>
+                
+                {{#if_eq user.role 'student'}}
+                    <a href="/student/dashboard" class="block px-4 py-2 text-green-100 hover:bg-green-600">Dashboard</a>
+                    <a href="/student/requests" class="block px-4 py-2 text-green-100 hover:bg-green-600">My Requests</a>
+                {{/if_eq}}
+                
+                {{#if_eq user.role 'registrar'}}
+                    <a href="/registrar/dashboard" class="block px-4 py-2 text-green-100 hover:bg-green-600">Dashboard</a>
+                    <a href="/registrar/requests" class="block px-4 py-2 text-green-100 hover:bg-green-600">Requests</a>
+                    <a href="/registrar/appointments" class="block px-4 py-2 text-green-100 hover:bg-green-600">Appointments</a>
+                {{/if_eq}}
+                
+                {{#if_eq user.role 'admin'}}
+                    <a href="/admin/dashboard" class="block px-4 py-2 text-green-100 hover:bg-green-600">Dashboard</a>
+                    <a href="/admin/users" class="block px-4 py-2 text-green-100 hover:bg-green-600">Users</a>
+                    <a href="/admin/analytics" class="block px-4 py-2 text-green-100 hover:bg-green-600">Analytics</a>
+                {{/if_eq}}
+                
+                <a href="/logout" class="block px-4 py-2 bg-red-500 text-white hover:bg-red-600 m-2 rounded-lg text-center font-semibold">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            {{/if}}
+        </div>
+    </div>
+</nav>

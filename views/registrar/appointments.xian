@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>Appointments - MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        .animate-fade-in-down { animation: fadeInDown 0.6s ease-out; }
+        .table-row-hover { transition: all 0.2s ease; }
+        .table-row-hover:hover { background-color: #f3f4f6; transform: translateX(4px); }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 min-h-screen flex flex-col pt-20">
+    {{>navbar}}
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page Title -->
+        <div class="animate-fade-in-down mb-10 flex items-center justify-between">
+            <div>
+                <h1 class="text-5xl font-black text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-calendar-check mr-4 text-green-600"></i> Appointments
+                </h1>
+                <p class="text-gray-600 text-lg">Manage document pickup appointments</p>
+            </div>
+            <a href="{{basePath}}/appointments/new" class="inline-flex items-center bg-gradient-to-br from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105">
+                <i class="fas fa-plus-circle mr-2 text-lg"></i> Add Appointment
+            </a>
+        </div>
+
+        <!-- Appointments Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-fade-in-up">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-lg p-8 border-l-4 border-blue-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-700 text-sm font-bold mb-3 uppercase tracking-wide">Scheduled</p>
+                        <p class="text-5xl font-black text-blue-600">{{stats.scheduled}}</p>
+                    </div>
+                    <div class="bg-blue-600 bg-opacity-20 rounded-full p-6">
+                        <i class="fas fa-calendar-check text-6xl text-blue-600 opacity-70"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl shadow-lg p-8 border-l-4 border-green-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-700 text-sm font-bold mb-3 uppercase tracking-wide">Completed</p>
+                        <p class="text-5xl font-black text-green-600">{{stats.completed}}</p>
+                    </div>
+                    <div class="bg-green-600 bg-opacity-20 rounded-full p-6">
+                        <i class="fas fa-check-circle text-6xl text-green-600 opacity-70"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-yellow-50 to-amber-100 rounded-xl shadow-lg p-8 border-l-4 border-yellow-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-700 text-sm font-bold mb-3 uppercase tracking-wide">Missed/Cancelled</p>
+                        <p class="text-5xl font-black text-yellow-600">{{stats.missed}}</p>
+                    </div>
+                    <div class="bg-yellow-600 bg-opacity-20 rounded-full p-6">
+                        <i class="fas fa-times-circle text-6xl text-yellow-600 opacity-70"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments Table -->
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
+            <div class="bg-gradient-to-r from-green-700 to-emerald-700 px-8 py-8">
+                <h2 class="text-white text-2xl font-black flex items-center"><i class="fas fa-list mr-3"></i> All Appointments</h2>
+                <p class="text-green-100 mt-2">Schedule and manage document pickup appointments</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-100 border-b-2 border-gray-300">
+                        <tr>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Student Name</th>
+                            <th class="hidden sm:table-cell px-8 py-4 text-left text-gray-800 font-bold">Document</th>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Date</th>
+                            <th class="hidden sm:table-cell px-8 py-4 text-left text-gray-800 font-bold">Time</th>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Status</th>
+                            <th class="px-8 py-4 text-left text-gray-800 font-bold">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#if appointments.length}}
+                            {{#each appointments}}
+                            <tr class="table-row-hover border-b-2 border-gray-200">
+                                <td class="px-8 py-5 text-gray-800 font-medium">
+                                    <i class="fas fa-user mr-2 text-green-600"></i>
+                                    <span class="truncate max-w-[120px] inline-block align-middle">{{this.student.name}}</span>
+                                </td>
+                                <td class="hidden sm:table-cell px-8 py-5 text-gray-600 font-semibold">
+                                    {{formatDocType this.documentRequest.documentType}}
+                                </td>
+                                <td class="px-8 py-5 text-gray-600 font-medium">
+                                    {{formatDate this.appointmentDate}}
+                                </td>
+                                <td class="hidden sm:table-cell px-8 py-5 text-gray-600 font-medium">
+                                    {{formatTime this.appointmentTime}}
+                                </td>
+                                <td class="px-8 py-5">
+                                    {{#switch this.status}}
+                                        {{#case 'scheduled'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-800 inline-flex items-center"><i class="fas fa-calendar-check mr-2"></i>Scheduled</span>{{/case}}
+                                        {{#case 'completed'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-800 inline-flex items-center"><i class="fas fa-check-double mr-2"></i>Completed</span>{{/case}}
+                                        {{#case 'missed'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-yellow-100 text-yellow-800 inline-flex items-center"><i class="fas fa-exclamation-circle mr-2"></i>Missed</span>{{/case}}
+                                        {{#case 'cancelled'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-800 inline-flex items-center"><i class="fas fa-ban mr-2"></i>Cancelled</span>{{/case}}
+                                        {{#case 'rescheduled'}}<span class="px-4 py-2 rounded-full text-sm font-bold bg-purple-100 text-purple-800 inline-flex items-center"><i class="fas fa-redo mr-2"></i>Rescheduled</span>{{/case}}
+                                    {{/switch}}
+                                </td>
+                                <td class="px-8 py-5">
+                                    <div class="flex gap-2">
+                                        {{#if_eq this.status 'scheduled'}}
+                                        <form method="POST" action="{{../basePath}}/appointments/{{this.id}}/status" class="inline">
+                                            <input type="hidden" name="status" value="completed">
+                                            <button type="submit" class="text-green-600 hover:text-green-800 font-bold transition" title="Mark as completed">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{../basePath}}/appointments/{{this.id}}/status" class="inline">
+                                            <input type="hidden" name="status" value="missed">
+                                            <button type="submit" class="text-yellow-600 hover:text-yellow-800 font-bold transition" title="Mark as missed">
+                                                <i class="fas fa-exclamation-circle"></i>
+                                            </button>
+                                        </form>
+                                        {{/if_eq}}
+                                        <a href="{{../basePath}}/requests/{{this.documentRequestId}}" class="text-blue-600 hover:text-blue-800 font-bold transition" title="View request">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        {{else}}
+                        <tr>
+                            <td colspan="6" class="px-8 py-12 text-center text-gray-500">
+                                <i class="fas fa-calendar text-4xl mb-4 text-gray-400"></i>
+                                <p class="text-lg font-semibold">No appointments scheduled</p>
+                            </td>
+                        </tr>
+                        {{/if}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Upcoming Appointments Alert -->
+        {{#if upcomingAppointments.length}}
+        <div class="mt-12 bg-blue-50 border-l-4 border-blue-600 rounded-lg p-6 animate-fade-in-up">
+            <h3 class="text-xl font-black text-blue-900 mb-4 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i> Upcoming Appointments (Next 7 Days)
+            </h3>
+            <div class="space-y-3">
+                {{#each upcomingAppointments}}
+                <div class="bg-white p-4 rounded-lg border-l-4 border-blue-400">
+                    <p class="font-bold text-gray-800">{{this.student.name}} - {{formatDocType this.documentRequest.documentType}}</p>
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-calendar mr-2"></i> {{formatDate this.appointmentDate}} at {{formatTime this.appointmentTime}}
+                    </p>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/if}}
+    </main>
+    {{>footer}}
+</body>
+</html>

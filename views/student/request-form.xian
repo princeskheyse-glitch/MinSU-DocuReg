@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+  <title>New Request — MinSU DocuReg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-28px)} to{opacity:1;transform:translateY(0)} }
+    .anim-up   { animation:fadeInUp .55s ease-out both; }
+    .anim-down { animation:fadeInDown .55s ease-out both; }
+    .input-field { transition:border-color .25s,box-shadow .25s,transform .25s; }
+    .input-field:focus { transform:translateY(-2px); box-shadow:0 8px 20px rgba(5,150,105,.15); }
+    .btn-glow:hover { box-shadow:0 12px 28px rgba(5,150,105,.35); transform:scale(1.03); }
+    .btn-glow { transition:all .25s ease; }
+    .doc-option { transition:all .25s ease; cursor:pointer; }
+    .doc-option:hover { border-color:#059669; background:#f0fdf4; transform:translateY(-2px); }
+    .doc-option input:checked ~ .doc-label { border-color:#059669; background:#ecfdf5; }
+  </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 min-h-screen flex flex-col">
+  {{>navbar}}
+  <div class="flex-1 max-w-2xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+
+    <div class="anim-down mb-8">
+      <a href="/student/requests" class="inline-flex items-center text-emerald-600 hover:text-emerald-800 font-semibold text-sm transition mb-4">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Requests
+      </a>
+      <p class="text-emerald-600 font-semibold text-sm uppercase tracking-wider mb-1">Student Portal</p>
+      <h1 class="text-4xl font-black text-gray-800">Request a Document</h1>
+      <p class="text-gray-500 mt-1">Fill out the form below to submit your request</p>
+    </div>
+
+    {{#if error}}
+    <div class="anim-down mb-6 flex items-center space-x-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+      <i class="fas fa-exclamation-circle text-red-500"></i>
+      <p class="text-red-600 text-sm font-medium">{{error}}</p>
+    </div>
+    {{/if}}
+
+    <div class="anim-up bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-6">
+        <h2 class="text-white text-xl font-black flex items-center"><i class="fas fa-file-import mr-3"></i>Document Request Form</h2>
+        <p class="text-emerald-100 text-sm mt-1">Processing time: 6 working days</p>
+      </div>
+
+      <form method="POST" action="/student/request/create" class="p-8 space-y-7">
+
+        <!-- Document Type -->
+        <div>
+          <label class="block text-gray-800 font-bold text-sm mb-3"><i class="fas fa-file text-emerald-500 mr-2"></i>Document Type</label>
+          <div class="space-y-2">
+            <label class="doc-option flex items-center p-3.5 border-2 border-gray-200 rounded-xl bg-white">
+              <input type="radio" name="documentType" value="transcript" required class="mr-3 accent-emerald-600 flex-shrink-0">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Transcript of Records</p>
+                <p class="text-gray-400 text-xs">Official academic transcript with grades and credits</p>
+              </div>
+            </label>
+            <label class="doc-option flex items-center p-3.5 border-2 border-gray-200 rounded-xl bg-white">
+              <input type="radio" name="documentType" value="transfer_credentials" class="mr-3 accent-emerald-600 flex-shrink-0">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Certificate of Transfer Credentials</p>
+                <p class="text-gray-400 text-xs">Certificate of Transfer Credentials and Academic Records</p>
+              </div>
+            </label>
+            <label class="doc-option flex items-center p-3.5 border-2 border-gray-200 rounded-xl bg-white">
+              <input type="radio" name="documentType" value="diploma_copy" class="mr-3 accent-emerald-600 flex-shrink-0">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Second Copy of Diploma</p>
+                <p class="text-gray-400 text-xs">Request for a second copy of your diploma</p>
+              </div>
+            </label>
+            <label class="doc-option flex items-center p-3.5 border-2 border-gray-200 rounded-xl bg-white">
+              <input type="radio" name="documentType" value="certificate" class="mr-3 accent-emerald-600 flex-shrink-0">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Certificate of Graduation</p>
+                <p class="text-gray-400 text-xs">Official certificate confirming completion of a degree program</p>
+              </div>
+            </label>
+            <label class="doc-option flex items-center p-3.5 border-2 border-gray-200 rounded-xl bg-white">
+              <input type="radio" name="documentType" value="verification" class="mr-3 accent-emerald-600 flex-shrink-0">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Verification / Authentication Letter</p>
+                <p class="text-gray-400 text-xs">Letter verifying enrollment, graduation, or academic standing</p>
+              </div>
+            </label>
+            <label class="doc-option flex items-center p-3.5 border-2 border-gray-200 rounded-xl bg-white">
+              <input type="radio" name="documentType" value="enrollment_certificate" class="mr-3 accent-emerald-600 flex-shrink-0">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Certificate of Enrollment</p>
+                <p class="text-gray-400 text-xs">Proof of current enrollment status for the current semester</p>
+              </div>
+            </label>
+            <label class="doc-option flex items-center p-3.5 border-2 border-gray-200 rounded-xl bg-white">
+              <input type="radio" name="documentType" value="good_moral" class="mr-3 accent-emerald-600 flex-shrink-0">
+              <div>
+                <p class="font-bold text-gray-800 text-sm">Good Moral Certificate</p>
+                <p class="text-gray-400 text-xs">Certificate of good moral character issued by the Registrar</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Purpose -->
+        <div>
+          <label for="purpose" class="block text-gray-800 font-bold text-sm mb-2"><i class="fas fa-pen-fancy text-emerald-500 mr-2"></i>Purpose of Request</label>
+          <textarea id="purpose" name="purpose" required rows="4" placeholder="e.g., For job application, scholarship, further studies..."
+            class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white resize-none"></textarea>
+        </div>
+
+        <!-- Quantity -->
+        <div>
+          <label for="quantity" class="block text-gray-800 font-bold text-sm mb-2"><i class="fas fa-copy text-emerald-500 mr-2"></i>Number of Copies</label>
+          <input type="number" id="quantity" name="quantity" min="1" max="10" value="1" required
+            class="input-field w-32 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white font-bold text-center">
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 pt-4 border-t border-gray-100">
+          <button type="submit" class="btn-glow flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center space-x-2">
+            <i class="fas fa-paper-plane"></i><span>Submit Request</span>
+          </button>
+          <a href="/student/requests" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3.5 rounded-xl text-center transition flex items-center justify-center space-x-2">
+            <i class="fas fa-times"></i><span>Cancel</span>
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info box -->
+    <div class="anim-up mt-6 bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+      <h3 class="font-bold text-emerald-800 text-sm mb-3 flex items-center"><i class="fas fa-info-circle mr-2"></i>Important Information</h3>
+      <ul class="space-y-1.5 text-xs text-emerald-700">
+        <li class="flex items-start"><i class="fas fa-check text-emerald-500 mr-2 mt-0.5"></i>Documents are processed within 6 working days</li>
+        <li class="flex items-start"><i class="fas fa-check text-emerald-500 mr-2 mt-0.5"></i>A pickup appointment will be auto-scheduled when your document is ready</li>
+        <li class="flex items-start"><i class="fas fa-check text-emerald-500 mr-2 mt-0.5"></i>You will receive an email notification with your appointment details</li>
+      </ul>
+    </div>
+  </div>
+  {{>footer}}
+</body>
+</html>

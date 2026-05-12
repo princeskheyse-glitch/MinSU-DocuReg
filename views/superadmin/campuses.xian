@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>Campus Management — MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .anim-up { animation:fadeInUp .5s ease-out both; }
+        .d1{animation-delay:.05s} .d2{animation-delay:.1s} .d3{animation-delay:.15s}
+        .card-hover { transition:transform .25s,box-shadow .25s; }
+        .card-hover:hover { transform:translateY(-4px); box-shadow:0 16px 32px rgba(0,0,0,.1); }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    {{>navbar}}
+    <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+
+        <div class="mb-8">
+            <a href="/superadmin/dashboard" class="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-semibold text-sm mb-4 group transition">
+                <span class="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-emerald-50 transition">
+                    <i class="fas fa-arrow-left text-xs text-emerald-600"></i>
+                </span>
+                Back to Dashboard
+            </a>
+            <div class="inline-flex items-center gap-2 bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                <i class="fas fa-crown"></i> SUPER ADMIN
+            </div>
+            <h1 class="text-3xl font-black text-gray-800">Campus Management</h1>
+            <p class="text-gray-500 text-sm mt-1">Mindoro State University — 3 Campuses</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{#each campuses}}
+            <div class="anim-up card-hover bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
+                <div class="bg-gradient-to-r from-emerald-700 to-teal-700 px-6 py-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-university text-white text-xl"></i>
+                        </div>
+                        {{#if this.isActive}}
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-400 bg-opacity-30 text-white">Active</span>
+                        {{else}}
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-400 bg-opacity-30 text-white">Inactive</span>
+                        {{/if}}
+                    </div>
+                    <p class="text-emerald-200 text-xs font-bold uppercase tracking-widest">{{this.code}}</p>
+                    <h2 class="text-white font-black text-lg leading-tight">{{this.name}}</h2>
+                </div>
+                <div class="p-6 space-y-3">
+                    {{#if this.address}}
+                    <div class="flex items-start gap-3 text-sm text-gray-600">
+                        <i class="fas fa-map-marker-alt text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                        <span>{{this.address}}</span>
+                    </div>
+                    {{/if}}
+                    {{#if this.contactEmail}}
+                    <div class="flex items-center gap-3 text-sm text-gray-600">
+                        <i class="fas fa-envelope text-emerald-500 flex-shrink-0"></i>
+                        <span>{{this.contactEmail}}</span>
+                    </div>
+                    {{/if}}
+                    {{#if this.contactPhone}}
+                    <div class="flex items-center gap-3 text-sm text-gray-600">
+                        <i class="fas fa-phone text-emerald-500 flex-shrink-0"></i>
+                        <span>{{this.contactPhone}}</span>
+                    </div>
+                    {{/if}}
+                </div>
+                <div class="px-6 pb-6 flex gap-2">
+                    <a href="/superadmin/users?campus={{this.id}}" class="flex-1 flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold py-2.5 rounded-xl text-sm transition">
+                        <i class="fas fa-users text-xs"></i> Users
+                    </a>
+                    <a href="/superadmin/requests?campus={{this.id}}" class="flex-1 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-2.5 rounded-xl text-sm transition">
+                        <i class="fas fa-file-alt text-xs"></i> Requests
+                    </a>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </main>
+    {{>footer}}
+</body>
+</html>

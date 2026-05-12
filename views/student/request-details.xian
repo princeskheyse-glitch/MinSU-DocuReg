@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>Request Details — MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeInUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+        .anim-up   { animation:fadeInUp .5s ease-out both; }
+        .anim-down { animation:fadeInDown .5s ease-out both; }
+        .d1{animation-delay:.05s} .d2{animation-delay:.1s} .d3{animation-delay:.15s} .d4{animation-delay:.2s}
+        .info-row { transition:background .15s; }
+        .info-row:hover { background:#f0fdf4; }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 min-h-screen flex flex-col pt-20">
+    {{>navbar}}
+    <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <!-- Breadcrumb -->
+        <div class="anim-down mb-6 flex items-center gap-2 text-sm text-gray-500">
+            <a href="/student/requests" class="hover:text-emerald-600 font-semibold transition flex items-center gap-1">
+                <i class="fas fa-arrow-left text-xs"></i> Back to My Requests
+            </a>
+            <span>/</span>
+            <span class="text-gray-700 font-semibold">Request Details</span>
+        </div>
+
+        <!-- ── HEADER ── -->
+        <div class="anim-down bg-gradient-to-r from-emerald-700 to-teal-700 rounded-2xl shadow-xl px-8 py-7 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="min-w-0">
+                <p class="text-emerald-200 text-xs font-bold uppercase tracking-widest mb-1">Your Document Request</p>
+                <h1 class="text-white text-2xl font-black truncate">{{formatDocType request.documentType}}</h1>
+                <p class="text-emerald-300 text-xs mt-1 font-mono">ID: {{request.id}}</p>
+            </div>
+            <div class="flex-shrink-0">
+                {{#switch request.status}}
+                    {{#case 'pending'}}
+                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-amber-100 text-amber-800">
+                            <i class="fas fa-hourglass-start"></i> Pending Review
+                        </span>
+                    {{/case}}
+                    {{#case 'processing'}}
+                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-800">
+                            <i class="fas fa-cog fa-spin"></i> Being Processed
+                        </span>
+                    {{/case}}
+                    {{#case 'ready'}}
+                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-emerald-100 text-emerald-800">
+                            <i class="fas fa-check-circle"></i> Ready for Pickup
+                        </span>
+                    {{/case}}
+                    {{#case 'completed'}}
+                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-teal-100 text-teal-800">
+                            <i class="fas fa-check-double"></i> Completed
+                        </span>
+                    {{/case}}
+                    {{#case 'rejected'}}
+                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-800">
+                            <i class="fas fa-times-circle"></i> Rejected
+                        </span>
+                    {{/case}}
+                {{/switch}}
+            </div>
+        </div>
+
+        <!-- ── READY ALERT ── -->
+        {{#if_eq request.status 'ready'}}
+        <div class="anim-up d1 mb-4 bg-emerald-50 border-2 border-emerald-400 rounded-2xl px-6 py-5 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-bell text-white"></i>
+            </div>
+            <div>
+                <p class="text-emerald-800 font-black text-base">Your document is ready for pickup!</p>
+                <p class="text-emerald-700 text-sm mt-1">Come to the Registrar's Office on your scheduled date and time. Bring a valid ID.</p>
+            </div>
+        </div>
+
+        <!-- ── APPOINTMENT CARD — FULL WIDTH, PROMINENT ── -->
+        {{#if appointments.length}}
+        <div class="anim-up d2 mb-6 bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-blue-300">
+            <!-- Pulsing header to draw attention -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-blue-100 text-xs font-bold uppercase tracking-widest">Action Required</p>
+                        <h2 class="text-white font-black text-lg">Your Pickup Appointment</h2>
+                    </div>
+                </div>
+                <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-white text-blue-700 animate-pulse">
+                    <i class="fas fa-bell mr-1"></i> Scheduled
+                </span>
+            </div>
+            {{#each appointments}}
+            {{#if_eq this.status 'scheduled'}}
+            <div class="px-6 py-6">
+                <!-- Big date/time display -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6 py-4">
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-calendar-day text-blue-600 text-3xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Date</p>
+                        <p class="text-gray-900 font-black text-xl">{{formatDate this.appointmentDate}}</p>
+                    </div>
+                    <div class="hidden sm:block w-px h-16 bg-gray-200"></div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-2xl bg-indigo-100 flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-clock text-indigo-600 text-3xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Time</p>
+                        <p class="text-gray-900 font-black text-xl">{{formatTime this.appointmentTime}}</p>
+                    </div>
+                    <div class="hidden sm:block w-px h-16 bg-gray-200"></div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 rounded-2xl bg-emerald-100 flex items-center justify-center mx-auto mb-2">
+                            <i class="fas fa-map-marker-alt text-emerald-600 text-3xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Location</p>
+                        <p class="text-gray-900 font-black text-base">Registrar's Office</p>
+                    </div>
+                </div>
+                {{#if this.notes}}
+                <p class="text-center text-gray-500 text-sm mt-2">
+                    <i class="fas fa-info-circle mr-1 text-blue-400"></i>{{this.notes}}
+                </p>
+                {{/if}}
+            </div>
+            <div class="bg-blue-50 px-6 py-4 border-t border-blue-100 flex items-start gap-2">
+                <i class="fas fa-exclamation-circle text-blue-500 mt-0.5 flex-shrink-0"></i>
+                <p class="text-blue-700 text-xs">Please arrive <strong>5–10 minutes early</strong>. Bring a valid school ID or government-issued ID. Failure to appear may result in rescheduling.</p>
+            </div>
+            {{/if_eq}}
+            {{/each}}
+        </div>
+        {{/if}}
+        {{/if_eq}}
+
+        <!-- ── REJECTION ALERT ── -->
+        {{#if_eq request.status 'rejected'}}
+        <div class="anim-up d1 mb-6 bg-red-50 border-2 border-red-300 rounded-2xl px-6 py-5 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-times text-white"></i>
+            </div>
+            <div>
+                <p class="text-red-800 font-black text-base">This request was rejected</p>
+                {{#if request.rejectionReason}}
+                <p class="text-red-700 text-sm mt-1"><strong>Reason:</strong> {{request.rejectionReason}}</p>
+                {{/if}}
+                <a href="/student/request/new" class="inline-flex items-center gap-1 mt-3 text-sm font-bold text-emerald-700 hover:underline">
+                    <i class="fas fa-plus-circle"></i> Submit a new request
+                </a>
+            </div>
+        </div>
+        {{/if_eq}}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- ── MAIN CONTENT ── -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Request Details -->
+                <div class="anim-up d1 bg-white rounded-2xl shadow-md overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-4">
+                        <h2 class="text-white font-black text-base flex items-center gap-2">
+                            <i class="fas fa-file-alt"></i> Request Details
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        <div class="info-row flex items-center gap-4 px-6 py-4">
+                            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Document Type</p>
+                                <p class="text-gray-900 font-bold">{{formatDocType request.documentType}}</p>
+                            </div>
+                        </div>
+                        <div class="info-row flex items-center gap-4 px-6 py-4">
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                <i class="fas fa-copy"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Quantity</p>
+                                <p class="text-gray-900 font-bold">{{request.quantity}} {{#if_eq request.quantity 1}}Copy{{else}}Copies{{/if_eq}}</p>
+                            </div>
+                        </div>
+                        <div class="info-row flex items-start gap-4 px-6 py-4">
+                            <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 flex-shrink-0 mt-0.5">
+                                <i class="fas fa-pen"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Purpose</p>
+                                <p class="text-gray-900 font-semibold">{{request.purpose}}</p>
+                            </div>
+                        </div>
+                        <div class="info-row flex items-center gap-4 px-6 py-4">
+                            <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 flex-shrink-0">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Date Submitted</p>
+                                <p class="text-gray-900 font-bold">{{formatDate request.createdAt}}</p>
+                            </div>
+                        </div>
+                        {{#if request.completedAt}}
+                        <div class="info-row flex items-center gap-4 px-6 py-4">
+                            <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 flex-shrink-0">
+                                <i class="fas fa-flag-checkered"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Completed On</p>
+                                <p class="text-gray-900 font-bold">{{formatDate request.completedAt}}</p>
+                            </div>
+                        </div>
+                        {{/if}}
+                        {{#if request.registrar}}
+                        <div class="info-row flex items-center gap-4 px-6 py-4">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 flex-shrink-0">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wide">Processed By</p>
+                                <p class="text-gray-900 font-bold">{{request.registrar.name}}</p>
+                            </div>
+                        </div>
+                        {{/if}}
+                    </div>
+                </div>
+
+                <!-- Registrar Notes -->
+                {{#if request.notes}}
+                <div class="anim-up d2 bg-orange-50 border border-orange-200 rounded-2xl px-6 py-5">
+                    <p class="text-orange-700 text-xs font-bold uppercase tracking-wide mb-2 flex items-center gap-2">
+                        <i class="fas fa-sticky-note"></i> Note from Registrar
+                    </p>
+                    <p class="text-gray-800 font-medium">{{request.notes}}</p>
+                </div>
+                {{/if}}
+
+                <!-- Appointments (shown in grid only when NOT ready — ready shows full-width above) -->
+                {{#unless_eq request.status 'ready'}}
+                {{#if appointments.length}}
+                <div class="anim-up d3 bg-white rounded-2xl shadow-md overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                        <h2 class="text-white font-black text-base flex items-center gap-2">
+                            <i class="fas fa-calendar-check"></i> Pickup Appointment
+                        </h2>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        {{#each appointments}}
+                        <div class="info-row px-6 py-5">
+                            <div class="flex items-center justify-between gap-4 mb-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-900 font-bold">{{formatDate this.appointmentDate}}</p>
+                                        <p class="text-gray-500 text-sm">at {{formatTime this.appointmentTime}}</p>
+                                    </div>
+                                </div>
+                                {{#switch this.status}}
+                                    {{#case 'scheduled'}}<span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Scheduled</span>{{/case}}
+                                    {{#case 'completed'}}<span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Completed</span>{{/case}}
+                                    {{#case 'missed'}}<span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">Missed</span>{{/case}}
+                                    {{#case 'cancelled'}}<span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Cancelled</span>{{/case}}
+                                    {{#case 'rescheduled'}}<span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">Rescheduled</span>{{/case}}
+                                {{/switch}}
+                            </div>
+                            {{#if this.notes}}
+                            <p class="text-gray-500 text-sm">
+                                <i class="fas fa-info-circle mr-1 text-blue-400"></i>{{this.notes}}
+                            </p>
+                            {{/if}}
+                            {{#if this.registrarNotes}}
+                            <p class="text-gray-500 text-sm mt-1">
+                                <i class="fas fa-user-tie mr-1 text-orange-400"></i><strong>Registrar:</strong> {{this.registrarNotes}}
+                            </p>
+                            {{/if}}
+                        </div>
+                        {{/each}}
+                    </div>
+                    <div class="bg-blue-50 px-6 py-4 border-t border-blue-100">
+                        <p class="text-blue-700 text-xs flex items-start gap-2">
+                            <i class="fas fa-info-circle mt-0.5 flex-shrink-0"></i>
+                            Please arrive 5–10 minutes early. Bring a valid school ID or government-issued ID for verification.
+                        </p>
+                    </div>
+                </div>
+                {{else}}
+                {{#if_eq request.status 'processing'}}
+                <div class="anim-up d3 bg-blue-50 border border-blue-200 rounded-2xl px-6 py-5 flex items-start gap-3">
+                    <i class="fas fa-calendar-times text-blue-400 mt-0.5"></i>
+                    <div>
+                        <p class="text-blue-800 font-bold text-sm">No appointment scheduled yet</p>
+                        <p class="text-blue-600 text-xs mt-1">An appointment will be automatically scheduled once your document is ready for pickup.</p>
+                    </div>
+                </div>
+                {{/if_eq}}
+                {{/if}}
+                {{/unless_eq}}
+
+                <!-- Cancel Action -->
+                {{#if_eq request.status 'pending'}}
+                <div class="anim-up d4 bg-white rounded-2xl shadow-md p-6">
+                    <h3 class="text-gray-700 font-bold text-sm mb-3 flex items-center gap-2">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i> Cancel Request
+                    </h3>
+                    <p class="text-gray-500 text-sm mb-4">You can cancel this request while it's still pending. This action cannot be undone.</p>
+                    <form method="POST" action="/student/requests/{{request.id}}/cancel">
+                        <button type="submit"
+                            onclick="return confirm('Are you sure you want to cancel this request?')"
+                            class="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 px-5 rounded-xl transition shadow hover:scale-105">
+                            <i class="fas fa-times"></i> Cancel This Request
+                        </button>
+                    </form>
+                </div>
+                {{/if_eq}}
+            </div>
+
+            <!-- ── SIDEBAR ── -->
+            <div class="space-y-4">
+
+                <!-- Status Timeline -->
+                <div class="anim-up d1 bg-white rounded-2xl shadow-md p-6">
+                    <h3 class="text-gray-800 font-black text-sm uppercase tracking-wide mb-5 flex items-center gap-2">
+                        <i class="fas fa-stream text-emerald-600"></i> Request Progress
+                    </h3>
+                    <ol class="relative border-l-2 border-gray-200 ml-3 space-y-5">
+
+                        <!-- Step 1: Submitted -->
+                        <li class="ml-5">
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <p class="text-sm font-bold text-emerald-700">Submitted</p>
+                            <p class="text-xs text-gray-400">{{formatDate request.createdAt}}</p>
+                        </li>
+
+                        <!-- Step 2: Processing -->
+                        <li class="ml-5">
+                            {{#if_eq request.status 'pending'}}
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-gray-200 border-2 border-white"></div>
+                            <p class="text-sm font-bold text-gray-400">Processing</p>
+                            <p class="text-xs text-gray-300">Waiting for review</p>
+                            {{else}}
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <p class="text-sm font-bold text-blue-700">Processing</p>
+                            <p class="text-xs text-gray-400">Document being prepared</p>
+                            {{/if_eq}}
+                        </li>
+
+                        <!-- Step 3: Ready -->
+                        <li class="ml-5">
+                            {{#switch request.status}}
+                                {{#case 'ready'}}
+                                <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-xs"></i>
+                                </div>
+                                <p class="text-sm font-bold text-emerald-700">Ready for Pickup</p>
+                                <p class="text-xs text-gray-400">Check your appointment</p>
+                                {{/case}}
+                                {{#case 'completed'}}
+                                <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-xs"></i>
+                                </div>
+                                <p class="text-sm font-bold text-emerald-700">Ready for Pickup</p>
+                                {{/case}}
+                                {{#case 'rejected'}}
+                                <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-gray-200 border-2 border-white"></div>
+                                <p class="text-sm font-bold text-gray-400">Ready for Pickup</p>
+                                {{/case}}
+                            {{/switch}}
+                            {{#if_eq request.status 'pending'}}
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-gray-200 border-2 border-white"></div>
+                            <p class="text-sm font-bold text-gray-400">Ready for Pickup</p>
+                            {{/if_eq}}
+                            {{#if_eq request.status 'processing'}}
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-gray-200 border-2 border-white"></div>
+                            <p class="text-sm font-bold text-gray-400">Ready for Pickup</p>
+                            {{/if_eq}}
+                        </li>
+
+                        <!-- Step 4: Completed / Rejected -->
+                        <li class="ml-5">
+                            {{#if_eq request.status 'completed'}}
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-teal-500 border-2 border-white flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                            <p class="text-sm font-bold text-teal-700">Completed</p>
+                            {{#if request.completedAt}}<p class="text-xs text-gray-400">{{formatDate request.completedAt}}</p>{{/if}}
+                            {{else}}
+                            {{#if_eq request.status 'rejected'}}
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-red-500 border-2 border-white flex items-center justify-center">
+                                <i class="fas fa-times text-white text-xs"></i>
+                            </div>
+                            <p class="text-sm font-bold text-red-700">Rejected</p>
+                            {{else}}
+                            <div class="absolute -left-2.5 w-5 h-5 rounded-full bg-gray-200 border-2 border-white"></div>
+                            <p class="text-sm font-bold text-gray-400">Completed</p>
+                            {{/if_eq}}
+                            {{/if_eq}}
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- What to expect -->
+                <div class="anim-up d2 bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+                    <p class="font-bold text-emerald-800 text-sm flex items-center gap-2 mb-3">
+                        <i class="fas fa-lightbulb text-emerald-500"></i> What to Expect
+                    </p>
+                    <ul class="space-y-2 text-xs text-emerald-700">
+                        <li class="flex items-start gap-2"><i class="fas fa-check-circle mt-0.5 flex-shrink-0"></i> Processing takes up to 6 working days</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check-circle mt-0.5 flex-shrink-0"></i> A pickup appointment is auto-scheduled when ready</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check-circle mt-0.5 flex-shrink-0"></i> Bring a valid ID on pickup day</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check-circle mt-0.5 flex-shrink-0"></i> Contact the Registrar's Office for concerns</li>
+                    </ul>
+                </div>
+
+                <!-- Quick actions -->
+                <div class="anim-up d3 space-y-2">
+                    <a href="/student/requests" class="flex items-center justify-center gap-2 w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl shadow-sm transition text-sm">
+                        <i class="fas fa-list text-emerald-600"></i> All My Requests
+                    </a>
+                    <a href="/student/request/new" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3 px-4 rounded-xl shadow transition text-sm">
+                        <i class="fas fa-plus-circle"></i> New Request
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    {{>footer}}
+</body>
+</html>

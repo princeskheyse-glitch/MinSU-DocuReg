@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+  <title>Login — MinSU DocuReg</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    @keyframes blob       { 0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%} 50%{border-radius:30% 60% 70% 40%/50% 60% 30% 60%} }
+    .anim-up   { animation:fadeInUp .6s ease-out both; }
+    .anim-down { animation:fadeInDown .6s ease-out both; }
+    .anim-float{ animation:float 3.5s ease-in-out infinite; }
+    .blob      { animation:blob 8s ease-in-out infinite; }
+    .input-field { transition:border-color .25s,box-shadow .25s,transform .25s; }
+    .input-field:focus { transform:translateY(-2px); box-shadow:0 8px 20px rgba(5,150,105,.18); }
+    .btn-glow:hover { box-shadow:0 12px 30px rgba(5,150,105,.4); transform:scale(1.03); }
+    .btn-glow { transition:all .25s ease; }
+  </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="min-h-screen py-6 px-4 relative bg-gradient-to-br from-emerald-50 via-green-50 to-teal-100">
+
+  <!-- Background blobs -->
+  <div class="fixed top-10 left-10 w-72 h-72 bg-emerald-200 opacity-40 blob pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 right-10 w-64 h-64 bg-teal-200 opacity-40 blob pointer-events-none -z-10" style="animation-delay:4s"></div>
+  <div class="fixed top-1/2 left-1/2 w-96 h-96 bg-green-100 opacity-30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none -z-10"></div>
+
+  <div class="max-w-md mx-auto anim-up">
+
+    <!-- Back to Home -->
+    <a href="/" class="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 font-semibold text-sm mb-5 group transition">
+      <span class="w-7 h-7 rounded-full bg-white shadow flex items-center justify-center group-hover:bg-emerald-50 transition">
+        <i class="fas fa-arrow-left text-xs text-emerald-600"></i>
+      </span>
+      Back to Home
+    </a>
+
+    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-emerald-100">
+
+      <!-- Header -->
+      <div class="relative bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 px-8 py-8 text-center overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+          <div class="absolute top-4 right-4 w-24 h-24 border-2 border-white rounded-full"></div>
+          <div class="absolute bottom-4 left-4 w-16 h-16 border-2 border-white rounded-full"></div>
+        </div>
+        <div class="relative anim-float mb-3">
+          <div class="w-20 h-20 rounded-full bg-white mx-auto flex items-center justify-center shadow-2xl overflow-hidden">
+            <img src="/images/logo/minsu-logo.png" alt="MinSU Logo" class="w-16 h-16 object-contain">
+          </div>
+        </div>
+        <h1 class="text-white text-2xl font-black relative">MinSU DocuReg</h1>
+        <p class="text-emerald-100 text-sm mt-1 relative">Document Management System</p>
+      </div>
+
+      <!-- Form -->
+      <div class="px-8 py-10">
+        <h2 class="text-2xl font-black text-gray-800 mb-1">Welcome back</h2>
+        <p class="text-gray-500 text-sm mb-7">Sign in to your account to continue</p>
+
+        {{#if error}}
+        <div class="mb-6 flex items-center space-x-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3 anim-down">
+          <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-exclamation-circle text-red-500 text-sm"></i>
+          </div>
+          <p class="text-red-600 text-sm font-medium">{{error}}</p>
+        </div>
+        {{/if}}
+
+        <form method="POST" action="/login" class="space-y-5">
+          <div>
+            <label for="email" class="block text-gray-700 font-bold text-sm mb-2">Email Address</label>
+            <div class="relative group">
+              <i class="fas fa-envelope absolute left-4 top-3.5 text-gray-400 group-focus-within:text-emerald-500 transition-colors text-sm"></i>
+              <input type="email" id="email" name="email" required placeholder="your@email.com"
+                class="input-field w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white">
+            </div>
+          </div>
+
+          <div>
+            <label for="password" class="block text-gray-700 font-bold text-sm mb-2">Password</label>
+            <div class="relative group">
+              <i class="fas fa-lock absolute left-4 top-3.5 text-gray-400 group-focus-within:text-emerald-500 transition-colors text-sm"></i>
+              <input type="password" id="password" name="password" required placeholder="••••••••"
+                class="input-field w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-emerald-500 text-sm bg-gray-50 focus:bg-white">
+            </div>
+          </div>
+
+          <button type="submit"
+            class="btn-glow w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold py-3.5 rounded-xl shadow-lg mt-2 flex items-center justify-center space-x-2">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Sign In</span>
+          </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-gray-100 space-y-3 text-center text-sm">
+          <!-- Google Sign-In -->
+          <button id="google-btn" onclick="signInWithGoogle()"
+            class="w-full flex items-center justify-center gap-3 border-2 border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 rounded-xl transition shadow-sm">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+            <span>Continue with Google</span>
+          </button>
+
+          <div class="flex items-center gap-3 text-gray-300 text-xs">
+            <div class="flex-1 h-px bg-gray-200"></div>
+            <span class="text-gray-400">or sign in with email</span>
+            <div class="flex-1 h-px bg-gray-200"></div>
+          </div>
+
+          <p class="text-gray-500">Don't have an account?
+            <a href="/register" class="text-emerald-600 font-bold hover:text-emerald-700 hover:underline transition">Register here</a>
+          </p>
+          <a href="/forgot-password" class="text-gray-400 hover:text-gray-600 transition flex items-center justify-center space-x-1">
+            <i class="fas fa-key text-xs"></i>
+            <span>Forgot your password?</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center text-gray-400 text-xs mt-6 pb-4">&copy; 2025 Mindoro State University</p>
+  </div>
+
+  <!-- Firebase JS SDK for Google Sign-In -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCSfrhbwoJcguEPsCtswunU3z9ckrcZWgQ",
+      authDomain: "minsu-docureg.firebaseapp.com",
+      projectId: "minsu-docureg"
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    window.signInWithGoogle = async () => {
+      const btn = document.getElementById('google-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Signing in...';
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const idToken = await result.user.getIdToken();
+
+        const res = await fetch('/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          alert(data.error);
+          btn.disabled = false;
+          btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Continue with Google</span>';
+        } else {
+          window.location.href = data.redirect;
+        }
+      } catch (err) {
+        console.error(err);
+        if (err.code !== 'auth/popup-closed-by-user') {
+          alert('Google sign-in failed. Please try again.');
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Continue with Google</span>';
+      }
+    };
+  </script>

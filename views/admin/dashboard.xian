@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DocuReg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/images/logo/minsu-logo.png">
+  <link rel="icon" type="image/png" href="/images/logo/minsu-logo.png">
+    <title>Admin Dashboard — MinSU DocuReg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeInUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeInDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+        .anim-up   { animation:fadeInUp .5s ease-out both; }
+        .anim-down { animation:fadeInDown .5s ease-out both; }
+        .d1{animation-delay:.05s} .d2{animation-delay:.1s} .d3{animation-delay:.15s}
+        .d4{animation-delay:.2s}  .d5{animation-delay:.25s} .d6{animation-delay:.3s}
+        .stat-card { transition:transform .25s,box-shadow .25s; }
+        .stat-card:hover { transform:translateY(-4px); box-shadow:0 16px 32px rgba(0,0,0,.1); }
+        .tr-hover { transition:background .15s,transform .15s; }
+        .tr-hover:hover { background:#f0fdf4; }
+    </style>
+  <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script></head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+    {{>navbar}}
+
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+
+        <!-- ── GREETING ── -->
+        <div class="anim-down mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+                <p class="text-emerald-600 text-xs font-bold uppercase tracking-widest mb-1">Campus Admin Portal</p>
+                <h1 class="text-3xl font-black text-gray-800">Good day, {{user.name}} 👋</h1>
+                {{#if campus}}
+                <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full mt-2">
+                    <i class="fas fa-university"></i> {{campus.name}}
+                </div>
+                {{/if}}
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <a href="/admin/users" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow transition hover:scale-105">
+                    <i class="fas fa-users"></i> Manage Users
+                </a>
+                <a href="/admin/analytics" class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 font-bold px-4 py-2.5 rounded-xl text-sm shadow-sm transition">
+                    <i class="fas fa-chart-line text-purple-500"></i> Analytics
+                </a>
+            </div>
+        </div>
+
+        <!-- ── TOP STATS ROW ── -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <!-- Total Requests -->
+            <div class="anim-up d1 stat-card col-span-2 sm:col-span-1 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-emerald-100 text-xs font-bold uppercase tracking-wide mb-1">Total Requests</p>
+                        <p class="text-5xl font-black">{{stats.totalRequests}}</p>
+                        <p class="text-emerald-200 text-xs mt-2">All document requests</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Pending -->
+            <div class="anim-up d2 stat-card bg-white rounded-2xl p-6 shadow-md border-t-4 border-amber-400">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-amber-600 text-xs font-bold uppercase tracking-wide mb-1">Pending</p>
+                        <p class="text-4xl font-black text-amber-500">{{stats.pendingRequests}}</p>
+                        <p class="text-gray-400 text-xs mt-1">Awaiting review</p>
+                    </div>
+                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-hourglass-start text-amber-500"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Processing -->
+            <div class="anim-up d3 stat-card bg-white rounded-2xl p-6 shadow-md border-t-4 border-blue-400">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-blue-600 text-xs font-bold uppercase tracking-wide mb-1">Processing</p>
+                        <p class="text-4xl font-black text-blue-500">{{stats.processingRequests}}</p>
+                        <p class="text-gray-400 text-xs mt-1">Being prepared</p>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-cog text-blue-500"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Completed -->
+            <div class="anim-up d4 stat-card bg-white rounded-2xl p-6 shadow-md border-t-4 border-teal-400">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-teal-600 text-xs font-bold uppercase tracking-wide mb-1">Completed</p>
+                        <p class="text-4xl font-black text-teal-500">{{stats.completedRequests}}</p>
+                        <p class="text-gray-400 text-xs mt-1">Fulfilled</p>
+                    </div>
+                    <div class="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-check-double text-teal-500"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SECOND STATS ROW ── -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="anim-up d2 stat-card bg-white rounded-2xl p-5 shadow-md border-t-4 border-violet-400">
+                <p class="text-violet-600 text-xs font-bold uppercase tracking-wide mb-1">Total Users</p>
+                <p class="text-3xl font-black text-violet-600">{{stats.totalUsers}}</p>
+                <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                    <span><i class="fas fa-graduation-cap mr-1 text-blue-400"></i>{{stats.totalStudents}} students</span>
+                </div>
+            </div>
+            <div class="anim-up d3 stat-card bg-white rounded-2xl p-5 shadow-md border-t-4 border-emerald-400">
+                <p class="text-emerald-600 text-xs font-bold uppercase tracking-wide mb-1">Active Users</p>
+                <p class="text-3xl font-black text-emerald-600">{{stats.activeUsers}}</p>
+                <p class="text-xs text-gray-400 mt-2"><i class="fas fa-check-circle mr-1 text-emerald-400"></i>Currently active</p>
+            </div>
+            <div class="anim-up d4 stat-card bg-white rounded-2xl p-5 shadow-md border-t-4 border-indigo-400">
+                <p class="text-indigo-600 text-xs font-bold uppercase tracking-wide mb-1">Registrar Staff</p>
+                <p class="text-3xl font-black text-indigo-600">{{stats.totalRegistrars}}</p>
+                <p class="text-xs text-gray-400 mt-2"><i class="fas fa-briefcase mr-1 text-indigo-400"></i>Staff members</p>
+            </div>
+            <div class="anim-up d5 stat-card bg-white rounded-2xl p-5 shadow-md border-t-4 border-green-400">
+                <p class="text-green-600 text-xs font-bold uppercase tracking-wide mb-1">Appointments</p>
+                <p class="text-3xl font-black text-green-600">{{stats.totalAppointments}}</p>
+                <p class="text-xs text-gray-400 mt-2"><i class="fas fa-calendar mr-1 text-green-400"></i>{{stats.scheduledAppointments}} scheduled</p>
+            </div>
+        </div>
+
+        <!-- ── MAIN CONTENT: 2-col layout ── -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+            <!-- Recent Requests (2/3 width) -->
+            <div class="lg:col-span-2 anim-up d3 bg-white rounded-2xl shadow-md overflow-hidden">
+                <div class="bg-gradient-to-r from-emerald-700 to-teal-700 px-6 py-5 flex items-center justify-between">
+                    <h2 class="text-white font-black text-base flex items-center gap-2">
+                        <i class="fas fa-file-invoice"></i> Recent Document Requests
+                    </h2>
+                    <a href="/admin/requests" class="text-emerald-200 hover:text-white text-xs font-semibold transition">View all →</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Student</th>
+                                <th class="hidden sm:table-cell px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Document</th>
+                                <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="hidden md:table-cell px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {{#if recentRequests.length}}
+                            {{#each recentRequests}}
+                            <tr class="tr-hover">
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-black text-xs flex-shrink-0">
+                                            {{this.student.name.[0]}}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-semibold text-gray-800 truncate max-w-[100px] sm:max-w-none">{{this.student.name}}</p>
+                                            <p class="text-xs text-gray-400 font-mono hidden sm:block">{{this.student.studentId}}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="hidden sm:table-cell px-5 py-4 text-sm text-gray-600">{{formatDocType this.documentType}}</td>
+                                <td class="px-5 py-4">
+                                    {{#switch this.status}}
+                                        {{#case 'pending'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><i class="fas fa-hourglass-start text-xs"></i>Pending</span>{{/case}}
+                                        {{#case 'processing'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><i class="fas fa-cog text-xs"></i>Processing</span>{{/case}}
+                                        {{#case 'ready'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fas fa-check-circle text-xs"></i>Ready</span>{{/case}}
+                                        {{#case 'completed'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-700"><i class="fas fa-check-double text-xs"></i>Completed</span>{{/case}}
+                                        {{#case 'rejected'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fas fa-times-circle text-xs"></i>Rejected</span>{{/case}}
+                                    {{/switch}}
+                                </td>
+                                <td class="hidden md:table-cell px-5 py-4 text-xs text-gray-400">{{formatDate this.createdAt}}</td>
+                                <td class="px-5 py-4">
+                                    <a href="/admin/requests/{{this.id}}" class="text-emerald-600 hover:text-emerald-800 font-bold text-xs transition hover:translate-x-1 inline-flex items-center gap-1">
+                                        View <i class="fas fa-arrow-right text-xs"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {{/each}}
+                            {{else}}
+                            <tr>
+                                <td colspan="5" class="px-5 py-12 text-center">
+                                    <i class="fas fa-inbox text-3xl text-gray-300 mb-2 block"></i>
+                                    <p class="text-gray-400 text-sm">No requests yet</p>
+                                </td>
+                            </tr>
+                            {{/if}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right sidebar: Quick Actions + Suspended/Inactive alert -->
+            <div class="space-y-4">
+
+                <!-- Quick Actions -->
+                <div class="anim-up d2 bg-white rounded-2xl shadow-md p-5">
+                    <h3 class="text-gray-700 font-black text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
+                        <i class="fas fa-bolt text-amber-500"></i> Quick Actions
+                    </h3>
+                    <div class="space-y-2">
+                        <a href="/admin/users" class="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50 transition group">
+                            <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition flex-shrink-0">
+                                <i class="fas fa-users text-blue-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Manage Users</p>
+                                <p class="text-xs text-gray-400">View, edit, suspend accounts</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs ml-auto"></i>
+                        </a>
+                        <a href="/admin/requests" class="flex items-center gap-3 p-3 rounded-xl hover:bg-amber-50 transition group">
+                            <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center group-hover:bg-amber-200 transition flex-shrink-0">
+                                <i class="fas fa-tasks text-amber-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Pending Requests</p>
+                                <p class="text-xs text-gray-400">{{stats.pendingRequests}} awaiting review</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs ml-auto"></i>
+                        </a>
+                        <a href="/admin/appointments" class="flex items-center gap-3 p-3 rounded-xl hover:bg-emerald-50 transition group">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition flex-shrink-0">
+                                <i class="fas fa-calendar-check text-emerald-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Appointments</p>
+                                <p class="text-xs text-gray-400">{{stats.scheduledAppointments}} scheduled</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs ml-auto"></i>
+                        </a>
+                        <a href="/admin/analytics" class="flex items-center gap-3 p-3 rounded-xl hover:bg-purple-50 transition group">
+                            <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition flex-shrink-0">
+                                <i class="fas fa-chart-line text-purple-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Analytics</p>
+                                <p class="text-xs text-gray-400">System performance</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs ml-auto"></i>
+                        </a>
+                        <a href="/admin/report" class="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-50 transition group">
+                            <div class="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition flex-shrink-0">
+                                <i class="fas fa-chart-bar text-orange-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Reports</p>
+                                <p class="text-xs text-gray-400">Generate & export</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs ml-auto"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- System Health -->
+                <div class="anim-up d3 bg-white rounded-2xl shadow-md p-5">
+                    <h3 class="text-gray-700 font-black text-sm uppercase tracking-wide mb-4 flex items-center gap-2">
+                        <i class="fas fa-heartbeat text-red-500"></i> System Health
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 flex items-center gap-2"><i class="fas fa-circle text-emerald-400 text-xs"></i>Total Users</span>
+                            <span class="font-bold text-gray-800 text-sm">{{stats.totalUsers}}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 flex items-center gap-2"><i class="fas fa-circle text-emerald-400 text-xs"></i>Active</span>
+                            <span class="font-bold text-emerald-600 text-sm">{{stats.activeUsers}}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 flex items-center gap-2"><i class="fas fa-circle text-gray-300 text-xs"></i>Inactive</span>
+                            <span class="font-bold text-gray-500 text-sm">{{stats.inactiveUsers}}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600 flex items-center gap-2"><i class="fas fa-circle text-red-400 text-xs"></i>Suspended</span>
+                            <span class="font-bold text-red-500 text-sm">{{stats.suspendedUsers}}</span>
+                        </div>
+                        <div class="border-t border-gray-100 pt-3 mt-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600 flex items-center gap-2"><i class="fas fa-circle text-red-400 text-xs"></i>Admin Accounts</span>
+                                <span class="font-bold text-red-600 text-sm">{{stats.totalAdmins}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── RECENT USERS TABLE ── -->
+        <div class="anim-up d5 bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-5 flex items-center justify-between">
+                <h2 class="text-white font-black text-base flex items-center gap-2">
+                    <i class="fas fa-users text-emerald-400"></i> Recently Registered Users
+                </h2>
+                <a href="/admin/users" class="text-gray-400 hover:text-white text-xs font-semibold transition">View all →</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="hidden md:table-cell px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Role</th>
+                            <th class="hidden sm:table-cell px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="hidden lg:table-cell px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Joined</th>
+                            <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {{#each recentUsers}}
+                        <tr class="tr-hover">
+                            <td class="px-5 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-black text-xs flex-shrink-0">
+                                        {{this.name.[0]}}
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-800 truncate max-w-[100px] sm:max-w-none">{{this.name}}</span>
+                                </div>
+                            </td>
+                            <td class="hidden md:table-cell px-5 py-4 text-sm text-gray-500 truncate max-w-[160px]">{{this.email}}</td>
+                            <td class="px-5 py-4">
+                                {{#switch this.role}}
+                                    {{#case 'student'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700"><i class="fas fa-graduation-cap text-xs"></i>Student</span>{{/case}}
+                                    {{#case 'registrar'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700"><i class="fas fa-briefcase text-xs"></i>Registrar</span>{{/case}}
+                                    {{#case 'admin'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fas fa-crown text-xs"></i>Admin</span>{{/case}}
+                                {{/switch}}
+                            </td>
+                            <td class="hidden sm:table-cell px-5 py-4">
+                                {{#switch this.status}}
+                                    {{#case 'active'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fas fa-check-circle text-xs"></i>Active</span>{{/case}}
+                                    {{#case 'inactive'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600"><i class="fas fa-minus-circle text-xs"></i>Inactive</span>{{/case}}
+                                    {{#case 'suspended'}}<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fas fa-ban text-xs"></i>Suspended</span>{{/case}}
+                                {{/switch}}
+                            </td>
+                            <td class="hidden lg:table-cell px-5 py-4 text-xs text-gray-400">{{formatDate this.createdAt}}</td>
+                            <td class="px-5 py-4">
+                                <a href="/admin/users/{{this.id}}" class="text-emerald-600 hover:text-emerald-800 font-bold text-xs transition hover:translate-x-1 inline-flex items-center gap-1">
+                                    View <i class="fas fa-arrow-right text-xs"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="6" class="px-5 py-12 text-center">
+                                <i class="fas fa-inbox text-3xl text-gray-300 mb-2 block"></i>
+                                <p class="text-gray-400 text-sm">No users found</p>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+    {{>footer}}
+</body>
+</html>
