@@ -36,8 +36,10 @@ export class FirestoreStore extends Store {
   async set(sid, session, callback) {
     try {
       const expires = new Date(Date.now() + this.ttl * 1000);
+      // Serialize session to plain JSON object (Firestore rejects custom prototypes)
+      const sessionData = JSON.parse(JSON.stringify(session));
       await this.col().doc(sid).set({
-        session,
+        session: sessionData,
         expires,
         updatedAt: new Date()
       });
