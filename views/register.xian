@@ -185,7 +185,7 @@
   <!-- Firebase JS SDK for Google Sign-In -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCSfrhbwoJcguEPsCtswunU3z9ckrcZWgQ",
@@ -193,10 +193,54 @@
       projectId: "minsu-docureg"
     };
 
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    const app      = initializeApp(firebaseConfig);
+    const auth     = getAuth(app);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+
+    async function handleRedirectResult() {
+      try {
+        const result = await getRedirectResult(auth);
+        if (!result) return;
+        const idToken = await result.user.getIdToken();
+        await sendTokenToServer(idToken);
+      } catch (err) {
+        console.error('Redirect result error:', err);
+        if (err.code !== 'auth/popup-closed-by-user') {
+          showError('Google sign-in failed: ' + (err.message || 'Please try again.'));
+        }
+      }
+    }
+
+    async function sendTokenToServer(idToken) {
+      const res = await fetch('/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+      const data = await res.json();
+      if (data.error) {
+        showError(data.error);
+      } else {
+        window.location.href = data.redirect;
+      }
+    }
+
+    function showError(msg) {
+      const btn = document.getElementById('google-btn');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Sign up with Google</span>';
+      }
+      let errDiv = document.getElementById('google-error');
+      if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.id = 'google-error';
+        errDiv.className = 'mt-3 flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3';
+        document.getElementById('google-btn')?.parentElement?.appendChild(errDiv);
+      }
+      errDiv.innerHTML = `<i class="fas fa-exclamation-circle text-red-500 flex-shrink-0"></i><p class="text-red-600 text-sm font-medium">${msg}</p>`;
+    }
 
     window.togglePassword = () => {
       const input = document.getElementById('password');
@@ -208,34 +252,26 @@
     window.signInWithGoogle = async () => {
       const btn = document.getElementById('google-btn');
       btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-gray-500"></i><span class="text-gray-600">Connecting...</span>';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-gray-500"></i><span class="text-gray-600">Connecting to Google...</span>';
       try {
         const result = await signInWithPopup(auth, provider);
         const idToken = await result.user.getIdToken();
-
-        const res = await fetch('/auth/google', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken })
-        });
-        const data = await res.json();
-
-        if (data.error) {
-          alert(data.error);
+        await sendTokenToServer(idToken);
+      } catch (err) {
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-gray-500"></i><span class="text-gray-600">Redirecting...</span>';
+          await signInWithRedirect(auth, provider);
+        } else if (err.code === 'auth/popup-closed-by-user') {
           btn.disabled = false;
           btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Sign up with Google</span>';
         } else {
-          window.location.href = data.redirect;
+          console.error('Google sign-in error:', err);
+          showError(err.message || 'Google sign-in failed. Please try again.');
         }
-      } catch (err) {
-        console.error(err);
-        if (err.code !== 'auth/popup-closed-by-user') {
-          alert('Google sign-in failed. Please try again.');
-        }
-        btn.disabled = false;
-        btn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"><span>Sign up with Google</span>';
       }
     };
+
+    handleRedirectResult();
 
     // Highlight selected campus card
     document.querySelectorAll('.campus-card input[type="radio"]').forEach(radio => {
