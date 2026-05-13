@@ -213,17 +213,27 @@
     }
 
     async function sendTokenToServer(idToken) {
-      // Use a hidden form POST so the browser handles cookies and redirects natively
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/auth/google';
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'idToken';
-      input.value = idToken;
-      form.appendChild(input);
-      document.body.appendChild(form);
-      form.submit();
+      try {
+        const res = await fetch('/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ idToken })
+        });
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch(e) {
+          showError('Server error. Please try again.');
+          return;
+        }
+        if (data.error) {
+          showError(data.error);
+        } else {
+          window.location.assign(data.redirect);
+        }
+      } catch(err) {
+        showError('Network error: ' + err.message);
+      }
     }
 
     function showError(msg) {

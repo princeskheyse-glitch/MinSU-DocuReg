@@ -163,19 +163,34 @@
     }
 
     async function sendTokenToServer(idToken) {
-      console.log('[Google Auth] Submitting ID token via form POST...');
-      // Use a hidden form POST so the browser handles cookies and redirects natively
-      // This is more reliable than fetch() for session cookies across domains
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/auth/google';
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = 'idToken';
-      input.value = idToken;
-      form.appendChild(input);
-      document.body.appendChild(form);
-      form.submit();
+      console.log('[Google Auth] Sending token to server, length:', idToken.length);
+      try {
+        const res = await fetch('/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ idToken })
+        });
+        console.log('[Google Auth] Response status:', res.status, 'ok:', res.ok);
+        const text = await res.text();
+        console.log('[Google Auth] Raw response:', text.substring(0, 200));
+        let data;
+        try { data = JSON.parse(text); } catch(e) { 
+          console.error('[Google Auth] Response is not JSON:', text.substring(0, 500));
+          showError('Server error. Check Vercel logs.');
+          return;
+        }
+        if (data.error) {
+          console.error('[Google Auth] Error from server:', data.error);
+          showError(data.error);
+        } else {
+          console.log('[Google Auth] Success, redirecting to:', data.redirect);
+          window.location.assign(data.redirect);
+        }
+      } catch(err) {
+        console.error('[Google Auth] Fetch failed:', err);
+        showError('Network error: ' + err.message);
+      }
     }
 
     function showError(msg) {

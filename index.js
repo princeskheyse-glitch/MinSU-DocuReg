@@ -46,12 +46,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "xianfire-secret-key",
   resave: false,
   saveUninitialized: false,
-  // Use Firestore store in production so sessions persist across serverless invocations
   store: db ? new FirestoreStore(db, { collection: 'sessions', ttl: 86400 }) : undefined,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 app.use(flash());

@@ -131,16 +131,12 @@ export const googleSignIn = async (req, res) => {
 
     const redirectMap = { superadmin: "/superadmin/dashboard", admin: "/admin/dashboard", registrar: "/registrar/dashboard" };
     const redirectTo = !profileComplete ? "/complete-profile" : (redirectMap[user.role] || "/student/dashboard");
-    console.log('[googleSignIn] Redirecting to:', redirectTo);
-
-    // Use server-side redirect so the browser receives Set-Cookie before navigating
-    return res.redirect(redirectTo);
+    console.log('[googleSignIn] Sending JSON redirect to:', redirectTo);
+    return res.json({ redirect: redirectTo });
 
   } catch (err) {
     console.error("[googleSignIn] CAUGHT ERROR:", err.code, err.message, err.stack);
-    // Redirect back to login with error message
-    const page = req.headers.referer?.includes('/register') ? '/register' : '/login';
-    return res.redirect(`${page}?google_error=${encodeURIComponent(err.message || 'Google sign-in failed')}`);
+    return res.status(401).json({ error: "Google sign-in failed: " + (err.message || "Please try again.") });
   }
 };
 
