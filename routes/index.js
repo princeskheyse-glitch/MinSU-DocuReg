@@ -27,6 +27,16 @@ router.get("/logout", logoutUser);
 
 // ── Google Sign-In ──
 router.post("/auth/google", googleSignIn);
+
+// ── Session diagnostic (temporary — remove after debugging) ──
+router.get("/debug/session", (req, res) => {
+  res.json({
+    sessionID: req.sessionID,
+    session: req.session,
+    cookies: req.headers.cookie || 'none'
+  });
+});
+
 router.get("/complete-profile",  requireAuth, completeProfilePage);
 router.post("/complete-profile", requireAuth, saveProfile);
 
