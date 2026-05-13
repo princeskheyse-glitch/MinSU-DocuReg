@@ -151,13 +151,14 @@
     async function handleRedirectResult() {
       try {
         const result = await getRedirectResult(auth);
-        if (!result) return; // No redirect in progress
+        if (!result) return; // No redirect in progress — do nothing
+        console.log('[Google Auth] Got redirect result, processing...');
         const idToken = await result.user.getIdToken();
         await sendTokenToServer(idToken);
       } catch (err) {
-        console.error('Redirect result error:', err);
-        if (err.code !== 'auth/popup-closed-by-user') {
-          showError('Google sign-in failed: ' + (err.message || 'Please try again.'));
+        // Only log — don't show error for normal page loads
+        if (err.code && err.code !== 'auth/no-auth-event') {
+          console.error('[Google Auth] Redirect result error:', err.code, err.message);
         }
       }
     }
@@ -184,8 +185,31 @@
           console.error('[Google Auth] Error from server:', data.error);
           showError(data.error);
         } else {
-          console.log('[Google Auth] Success, redirecting to:', data.redirect);
-          window.location.assign(data.redirect);
+          console.log('[Google Auth] Auth success. Verifying session before redirect...');
+          // Verify session is readable, then navigate
+          let attempts = 0;
+          const verifyAndRedirect = async () => {
+            attempts++;
+            try {
+              const verify = await fetch('/auth/verify-session', { credentials: 'include' });
+              const vData = await verify.json();
+              console.log('[Google Auth] Session verify attempt', attempts, ':', JSON.stringify(vData));
+              if (vData.authenticated) {
+                console.log('[Google Auth] Session confirmed! Navigating to:', data.redirect);
+                window.location.assign(data.redirect);
+              } else if (attempts < 5) {
+                console.log('[Google Auth] Session not ready yet, retrying in 500ms...');
+                setTimeout(verifyAndRedirect, 500);
+              } else {
+                console.error('[Google Auth] Session never became available after 5 attempts');
+                showError('Login succeeded but session could not be established. Please try again.');
+              }
+            } catch(e) {
+              console.error('[Google Auth] Verify fetch error:', e);
+              window.location.assign(data.redirect); // Navigate anyway
+            }
+          };
+          setTimeout(verifyAndRedirect, 200);
         }
       } catch(err) {
         console.error('[Google Auth] Fetch failed:', err);

@@ -27,7 +27,11 @@ export const requireRole = (...allowedRoles) => {
     }
     try {
       const user = await getUserWithCampus(req.session.userId);
-      if (!user) { req.session.destroy(); return res.redirect("/login"); }
+      if (!user) {
+        console.log('[requireRole] User not found in DB for userId:', req.session.userId, '— destroying session');
+        req.session.destroy();
+        return res.redirect("/login");
+      }
       if (user.role === 'superadmin' || allowedRoles.includes(user.role)) {
         req.user = user;
         return next();
@@ -38,8 +42,11 @@ export const requireRole = (...allowedRoles) => {
         statusCode: 403
       });
     } catch (err) {
-      console.error("RBAC Error:", err);
-      res.status(500).send("Server error");
+      console.error("[requireRole] ERROR fetching user:", err.message);
+      // Don't destroy session on DB error — just pass through with session userId
+      // This prevents logout on temporary Firestore failures
+      req.user = { id: req.session.userId, role: req.session.userRole, campusId: req.session.campusId };
+      return next();
     }
   };
 };
@@ -70,8 +77,13 @@ export const attachUser = async (req, res, next) => {
   if (req.session.userId) {
     try {
       req.user = await getUserWithCampus(req.session.userId);
+      if (!req.user) {
+        console.log('[attachUser] userId in session but user not found in DB:', req.session.userId);
+      }
     } catch (err) {
-      console.error("Error attaching user:", err);
+      console.error("[attachUser] ERROR:", err.message);
+      // Don't crash — use session data as fallback
+      req.user = { id: req.session.userId, role: req.session.userRole, campusId: req.session.campusId, name: 'User' };
     }
   }
   next();

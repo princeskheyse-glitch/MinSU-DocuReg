@@ -37,6 +37,16 @@ router.get("/debug/session", (req, res) => {
   });
 });
 
+// ── Session verify — confirms session is readable after auth ──
+router.get("/auth/verify-session", (req, res) => {
+  console.log('[verify-session] sessionID:', req.sessionID, 'userId:', req.session?.userId);
+  res.json({
+    authenticated: !!req.session?.userId,
+    userId: req.session?.userId || null,
+    role: req.session?.userRole || null
+  });
+});
+
 router.get("/complete-profile",  requireAuth, completeProfilePage);
 router.post("/complete-profile", requireAuth, saveProfile);
 
