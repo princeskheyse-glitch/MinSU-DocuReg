@@ -66,8 +66,9 @@ export const loginUser = async (req, res) => {
  *   4. Otherwise redirect to dashboard
  */
 export const googleSignIn = async (req, res) => {
-  const { idToken } = req.body;
-  console.log('[googleSignIn] Called. idToken present:', !!idToken);
+  // Accept idToken from both JSON body (fetch) and form body (form POST)
+  const idToken = req.body.idToken;
+  console.log('[googleSignIn] Called. idToken present:', !!idToken, '| content-type:', req.headers['content-type']);
   if (!idToken) return res.status(400).json({ error: "No ID token provided" });
 
   try {
@@ -128,19 +129,18 @@ export const googleSignIn = async (req, res) => {
     const profileComplete = user.profileComplete !== false && user.campusId;
     console.log('[googleSignIn] profileComplete:', profileComplete, '| campusId:', user.campusId, '| profileComplete flag:', user.profileComplete);
 
-    if (!profileComplete) {
-      console.log('[googleSignIn] Sending redirect to /complete-profile');
-      return res.json({ redirect: "/complete-profile" });
-    }
-
     const redirectMap = { superadmin: "/superadmin/dashboard", admin: "/admin/dashboard", registrar: "/registrar/dashboard" };
-    const redirectTo = redirectMap[user.role] || "/student/dashboard";
-    console.log('[googleSignIn] Sending redirect to:', redirectTo);
-    return res.json({ redirect: redirectTo });
+    const redirectTo = !profileComplete ? "/complete-profile" : (redirectMap[user.role] || "/student/dashboard");
+    console.log('[googleSignIn] Redirecting to:', redirectTo);
+
+    // Use server-side redirect so the browser receives Set-Cookie before navigating
+    return res.redirect(redirectTo);
 
   } catch (err) {
     console.error("[googleSignIn] CAUGHT ERROR:", err.code, err.message, err.stack);
-    return res.status(401).json({ error: "Google sign-in failed: " + (err.message || "Please try again.") });
+    // Redirect back to login with error message
+    const page = req.headers.referer?.includes('/register') ? '/register' : '/login';
+    return res.redirect(`${page}?google_error=${encodeURIComponent(err.message || 'Google sign-in failed')}`);
   }
 };
 

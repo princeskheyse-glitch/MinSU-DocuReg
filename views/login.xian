@@ -163,24 +163,19 @@
     }
 
     async function sendTokenToServer(idToken) {
-      console.log('[Google Auth] Sending ID token to server...');
-      const res = await fetch('/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ idToken })
-      });
-      console.log('[Google Auth] Server response status:', res.status);
-      console.log('[Google Auth] Response headers - Set-Cookie:', res.headers.get('set-cookie'));
-      const data = await res.json();
-      console.log('[Google Auth] Server response data:', JSON.stringify(data));
-      if (data.error) {
-        console.error('[Google Auth] Server returned error:', data.error);
-        showError(data.error);
-      } else {
-        console.log('[Google Auth] Redirecting to:', data.redirect);
-        window.location.href = data.redirect;
-      }
+      console.log('[Google Auth] Submitting ID token via form POST...');
+      // Use a hidden form POST so the browser handles cookies and redirects natively
+      // This is more reliable than fetch() for session cookies across domains
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/auth/google';
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'idToken';
+      input.value = idToken;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
     }
 
     function showError(msg) {
@@ -243,4 +238,11 @@
 
     // Check for redirect result when page loads
     handleRedirectResult();
+
+    // Show error from server redirect if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const googleError = urlParams.get('google_error');
+    if (googleError) {
+      showError(decodeURIComponent(googleError));
+    }
   </script>
