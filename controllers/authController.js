@@ -5,6 +5,8 @@ import bcrypt from "bcrypt";
 import { getAuth } from "firebase-admin/auth";
 import { User } from "../models/userModel.js";
 import { Campus } from "../models/campusModel.js";
+import { db } from "../models/db.js";
+import crypto from "crypto";
 
 export const loginPage = (req, res) => res.render("login", { title: "Login" });
 
@@ -136,7 +138,6 @@ export const googleSignIn = async (req, res) => {
     // Generate a one-time token and store it in Firestore
     // The browser will navigate to /auth/callback?token=xxx (full page load)
     // which sets the session cookie properly via server-side redirect
-    const crypto = await import('crypto');
     const token = crypto.randomBytes(32).toString('hex');
     await db.collection('auth_tokens').doc(token).set({
       userId: user.id,
@@ -167,7 +168,7 @@ export const authCallback = async (req, res) => {
   if (!token) return res.redirect('/login?error=missing_token');
 
   try {
-    const tokenDoc = await (await import('../models/db.js')).db.collection('auth_tokens').doc(token).get();
+    const tokenDoc = await db.collection('auth_tokens').doc(token).get();
 
     if (!tokenDoc.exists) {
       console.log('[authCallback] Token not found');
