@@ -185,7 +185,8 @@
           console.error('[Google Auth] Error from server:', data.error);
           showError(data.error);
         } else {
-          console.log('[Google Auth] Success, navigating to callback:', data.redirect);
+          console.log('[Google Auth] Success! Navigating to callback URL:', data.redirect);
+          console.log('[Google Auth] Full URL will be:', window.location.origin + data.redirect);
           window.location.assign(data.redirect);
         }
       } catch(err) {
@@ -258,7 +259,18 @@
     // Show error from server redirect if present
     const urlParams = new URLSearchParams(window.location.search);
     const googleError = urlParams.get('google_error');
+    const callbackError = urlParams.get('error');
     if (googleError) {
       showError(decodeURIComponent(googleError));
+    }
+    if (callbackError) {
+      const errorMessages = {
+        'invalid_token': 'Auth token expired or invalid. Please try again.',
+        'token_expired': 'Auth session expired. Please try again.',
+        'session_error': 'Could not establish session. Please try again.',
+        'server_error': 'Server error during login. Please try again.',
+        'missing_token': 'Missing auth token. Please try again.'
+      };
+      showError(errorMessages[callbackError] || 'Login error: ' + callbackError);
     }
   </script>

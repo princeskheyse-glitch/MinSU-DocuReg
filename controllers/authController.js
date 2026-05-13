@@ -168,10 +168,17 @@ export const authCallback = async (req, res) => {
   if (!token) return res.redirect('/login?error=missing_token');
 
   try {
-    const tokenDoc = await db.collection('auth_tokens').doc(token).get();
+    let tokenDoc = await db.collection('auth_tokens').doc(token).get();
+
+    // Retry once if not found — Firestore may have slight replication delay on Vercel
+    if (!tokenDoc.exists) {
+      console.log('[authCallback] Token not found on first try, retrying after 500ms...');
+      await new Promise(r => setTimeout(r, 500));
+      tokenDoc = await db.collection('auth_tokens').doc(token).get();
+    }
 
     if (!tokenDoc.exists) {
-      console.log('[authCallback] Token not found');
+      console.log('[authCallback] Token not found after retry');
       return res.redirect('/login?error=invalid_token');
     }
 
