@@ -19,32 +19,40 @@ export class FirestoreStore extends Store {
 
   async get(sid, callback) {
     try {
+      console.log('[FirestoreStore] get() sid:', sid);
       const doc = await this.col().doc(sid).get();
-      if (!doc.exists) return callback(null, null);
+      if (!doc.exists) {
+        console.log('[FirestoreStore] get() — session NOT found for sid:', sid);
+        return callback(null, null);
+      }
       const data = doc.data();
-      // Check expiry
       if (data.expires && data.expires.toDate && data.expires.toDate() < new Date()) {
+        console.log('[FirestoreStore] get() — session EXPIRED for sid:', sid);
         await this.col().doc(sid).delete();
         return callback(null, null);
       }
+      console.log('[FirestoreStore] get() — session FOUND for sid:', sid, '| userId:', data.session?.userId);
       return callback(null, data.session);
     } catch (err) {
+      console.error('[FirestoreStore] get() ERROR:', err.message);
       return callback(err);
     }
   }
 
   async set(sid, session, callback) {
     try {
+      console.log('[FirestoreStore] set() sid:', sid, '| userId:', session?.userId);
       const expires = new Date(Date.now() + this.ttl * 1000);
-      // Serialize session to plain JSON object (Firestore rejects custom prototypes)
       const sessionData = JSON.parse(JSON.stringify(session));
       await this.col().doc(sid).set({
         session: sessionData,
         expires,
         updatedAt: new Date()
       });
+      console.log('[FirestoreStore] set() SUCCESS for sid:', sid);
       return callback(null);
     } catch (err) {
+      console.error('[FirestoreStore] set() ERROR:', err.message);
       return callback(err);
     }
   }

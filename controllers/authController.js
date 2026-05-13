@@ -67,32 +67,36 @@ export const loginUser = async (req, res) => {
  */
 export const googleSignIn = async (req, res) => {
   const { idToken } = req.body;
+  console.log('[googleSignIn] Called. idToken present:', !!idToken);
   if (!idToken) return res.status(400).json({ error: "No ID token provided" });
 
   try {
     // Verify the token with Firebase Admin
+    console.log('[googleSignIn] Verifying ID token...');
     const decoded = await getAuth().verifyIdToken(idToken);
     const { uid, email, name, picture } = decoded;
+    console.log('[googleSignIn] Token verified. email:', email, 'uid:', uid);
 
     // Find existing user by email
     let user = await User.findOne({ email });
+    console.log('[googleSignIn] Existing user found:', !!user, user ? `id=${user.id} role=${user.role} campusId=${user.campusId}` : '');
 
     if (!user) {
-      // New user — create with incomplete profile (no campusId yet)
+      console.log('[googleSignIn] Creating new user...');
       user = await User.create({
         name: name || email.split('@')[0],
         email,
-        password: null,           // Google users have no password
+        password: null,
         googleUid: uid,
         photoURL: picture || null,
         role: 'student',
-        campusId: null,           // Will be filled in profile completion
+        campusId: null,
         studentId: null,
         status: 'active',
         profileComplete: false
       });
+      console.log('[googleSignIn] New user created. id:', user.id);
     } else {
-      // Existing user — update Google UID if not set
       if (!user.googleUid) {
         await User.update(user.id, { googleUid: uid, photoURL: picture || user.photoURL || null });
         user.googleUid = uid;
@@ -105,25 +109,38 @@ export const googleSignIn = async (req, res) => {
     req.session.userId   = user.id;
     req.session.userRole = user.role;
     req.session.campusId = user.campusId || null;
+    console.log('[googleSignIn] Session set. userId:', req.session.userId, 'sessionID:', req.sessionID);
 
-    // Save session explicitly before responding — critical for async stores (Firestore on Vercel)
+    // Save session explicitly before responding
+    console.log('[googleSignIn] Saving session to store...');
     await new Promise((resolve, reject) => {
-      req.session.save((err) => err ? reject(err) : resolve());
+      req.session.save((err) => {
+        if (err) {
+          console.error('[googleSignIn] session.save() ERROR:', err);
+          return reject(err);
+        }
+        console.log('[googleSignIn] session.save() SUCCESS. sessionID:', req.sessionID);
+        resolve();
+      });
     });
 
     // If profile is incomplete, send to completion page
     const profileComplete = user.profileComplete !== false && user.campusId;
+    console.log('[googleSignIn] profileComplete:', profileComplete, '| campusId:', user.campusId, '| profileComplete flag:', user.profileComplete);
+
     if (!profileComplete) {
+      console.log('[googleSignIn] Sending redirect to /complete-profile');
       return res.json({ redirect: "/complete-profile" });
     }
 
-    // Redirect based on role
     const redirectMap = { superadmin: "/superadmin/dashboard", admin: "/admin/dashboard", registrar: "/registrar/dashboard" };
-    return res.json({ redirect: redirectMap[user.role] || "/student/dashboard" });
+    const redirectTo = redirectMap[user.role] || "/student/dashboard";
+    console.log('[googleSignIn] Sending redirect to:', redirectTo);
+    return res.json({ redirect: redirectTo });
 
   } catch (err) {
-    console.error("Google sign-in error:", err);
-    return res.status(401).json({ error: "Invalid or expired Google token. Please try again." });
+    console.error("[googleSignIn] CAUGHT ERROR:", err.code, err.message, err.stack);
+    return res.status(401).json({ error: "Google sign-in failed: " + (err.message || "Please try again.") });
   }
 };
 

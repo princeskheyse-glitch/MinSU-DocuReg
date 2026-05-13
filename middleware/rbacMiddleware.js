@@ -20,7 +20,11 @@ export const requireAuth = (req, res, next) => {
 
 export const requireRole = (...allowedRoles) => {
   return async (req, res, next) => {
-    if (!req.session.userId) return res.redirect("/login");
+    console.log(`[requireRole] path=${req.path} sessionID=${req.sessionID} userId=${req.session?.userId} allowedRoles=${allowedRoles}`);
+    if (!req.session.userId) {
+      console.log('[requireRole] No userId in session — redirecting to /login');
+      return res.redirect("/login");
+    }
     try {
       const user = await getUserWithCampus(req.session.userId);
       if (!user) { req.session.destroy(); return res.redirect("/login"); }

@@ -163,16 +163,22 @@
     }
 
     async function sendTokenToServer(idToken) {
+      console.log('[Google Auth] Sending ID token to server...');
       const res = await fetch('/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ idToken })
       });
+      console.log('[Google Auth] Server response status:', res.status);
+      console.log('[Google Auth] Response headers - Set-Cookie:', res.headers.get('set-cookie'));
       const data = await res.json();
+      console.log('[Google Auth] Server response data:', JSON.stringify(data));
       if (data.error) {
+        console.error('[Google Auth] Server returned error:', data.error);
         showError(data.error);
       } else {
+        console.log('[Google Auth] Redirecting to:', data.redirect);
         window.location.href = data.redirect;
       }
     }
