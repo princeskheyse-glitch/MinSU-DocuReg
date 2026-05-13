@@ -42,13 +42,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.set('trust proxy', 1); // Trust Vercel's proxy for secure cookies
+
 app.use(session({
   secret: process.env.SESSION_SECRET || "xianfire-secret-key",
   resave: true,
   saveUninitialized: true,
   store: db ? new FirestoreStore(db, { collection: 'sessions', ttl: 86400 }) : undefined,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: 'auto', // Let express-session decide based on x-forwarded-proto
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000
   }
