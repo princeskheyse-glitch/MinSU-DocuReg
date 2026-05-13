@@ -135,6 +135,10 @@ app.engine("xian", async (filePath, options, callback) => {
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash("success_msg");
   res.locals.error_msg = req.flash("error_msg");
+  // Prevent Vercel edge caching any authenticated responses
+  if (req.path.startsWith('/auth/') || req.session?.userId) {
+    res.setHeader('Cache-Control', 'no-store, private');
+  }
   next();
 });
 

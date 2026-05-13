@@ -201,13 +201,16 @@ export const authCallback = async (req, res) => {
 
     console.log('[authCallback] Setting session userId:', data.userId);
 
-    // Save session then redirect — this is a full browser request so cookie is set properly
+    // Save session then redirect
     req.session.save((err) => {
       if (err) {
         console.error('[authCallback] session.save error:', err);
         return res.redirect('/login?error=session_error');
       }
       console.log('[authCallback] Session saved, redirecting to:', data.redirectTo);
+      // Prevent Vercel edge from caching this response (which would strip Set-Cookie)
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.setHeader('Pragma', 'no-cache');
       return res.redirect(data.redirectTo);
     });
 
