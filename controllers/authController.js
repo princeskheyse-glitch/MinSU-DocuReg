@@ -43,6 +43,10 @@ export const loginUser = async (req, res) => {
     req.session.userRole = user.role;
     req.session.campusId = user.campusId || null;
 
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => err ? reject(err) : resolve());
+    });
+
     if (user.role === 'superadmin') return res.redirect("/superadmin/dashboard");
     if (user.role === 'admin')      return res.redirect("/admin/dashboard");
     if (user.role === 'registrar')  return res.redirect("/registrar/dashboard");
@@ -101,6 +105,11 @@ export const googleSignIn = async (req, res) => {
     req.session.userId   = user.id;
     req.session.userRole = user.role;
     req.session.campusId = user.campusId || null;
+
+    // Save session explicitly before responding — critical for async stores (Firestore on Vercel)
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => err ? reject(err) : resolve());
+    });
 
     // If profile is incomplete, send to completion page
     const profileComplete = user.profileComplete !== false && user.campusId;
@@ -169,6 +178,11 @@ export const saveProfile = async (req, res) => {
     });
 
     req.session.campusId = campusId;
+
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => err ? reject(err) : resolve());
+    });
+
     res.redirect("/student/dashboard");
   } catch (err) {
     console.error("Save profile error:", err);
@@ -208,6 +222,11 @@ export const registerUser = async (req, res) => {
     req.session.userId   = user.id;
     req.session.userRole = user.role;
     req.session.campusId = user.campusId;
+
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => err ? reject(err) : resolve());
+    });
+
     res.redirect("/student/dashboard");
   } catch (err) {
     console.error("Registration error:", err);
