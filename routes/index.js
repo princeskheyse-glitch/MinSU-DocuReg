@@ -1,7 +1,7 @@
 
 import express from "express";
 import { homePage } from "../controllers/homeController.js";
-import { loginPage, registerPage, forgotPasswordPage, dashboardPage, loginUser, registerUser, logoutUser, resetPasswordByEmail, changePassword, googleSignIn, completeProfilePage, saveProfile } from "../controllers/authController.js";
+import { loginPage, registerPage, forgotPasswordPage, dashboardPage, loginUser, registerUser, logoutUser, resetPasswordByEmail, changePassword, googleSignIn, authCallback, completeProfilePage, saveProfile } from "../controllers/authController.js";
 import * as studentController from "../controllers/studentController.js";
 import * as registrarController from "../controllers/registrarController.js";
 import * as adminController from "../controllers/adminController.js";
@@ -27,6 +27,7 @@ router.get("/logout", logoutUser);
 
 // ── Google Sign-In ──
 router.post("/auth/google", googleSignIn);
+router.get("/auth/callback", authCallback);
 
 // ── Session diagnostic (temporary — remove after debugging) ──
 router.get("/debug/session", (req, res) => {

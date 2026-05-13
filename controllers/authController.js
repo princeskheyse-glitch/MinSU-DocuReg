@@ -131,8 +131,24 @@ export const googleSignIn = async (req, res) => {
 
     const redirectMap = { superadmin: "/superadmin/dashboard", admin: "/admin/dashboard", registrar: "/registrar/dashboard" };
     const redirectTo = !profileComplete ? "/complete-profile" : (redirectMap[user.role] || "/student/dashboard");
-    console.log('[googleSignIn] Sending JSON redirect to:', redirectTo);
-    return res.json({ redirect: redirectTo });
+    console.log('[googleSignIn] Creating one-time auth token for redirect...');
+
+    // Generate a one-time token and store it in Firestore
+    // The browser will navigate to /auth/callback?token=xxx (full page load)
+    // which sets the session cookie properly via server-side redirect
+    const crypto = await import('crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+    await db.collection('auth_tokens').doc(token).set({
+      userId: user.id,
+      userRole: user.role,
+      campusId: user.campusId || null,
+      redirectTo,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 60000) // 1 minute
+    });
+
+    console.log('[googleSignIn] Token created, sending to client');
+    return res.json({ redirect: `/auth/callback?token=${token}` });
 
   } catch (err) {
     console.error("[googleSignIn] CAUGHT ERROR:", err.code, err.message, err.stack);
@@ -141,8 +157,57 @@ export const googleSignIn = async (req, res) => {
 };
 
 /**
- * Profile completion page — shown after Google sign-in for new users
+ * Auth callback — exchanges one-time token for a session cookie
+ * This is a full browser GET request, so Set-Cookie works reliably
  */
+export const authCallback = async (req, res) => {
+  const { token } = req.query;
+  console.log('[authCallback] token:', token ? token.substring(0, 8) + '...' : 'missing');
+
+  if (!token) return res.redirect('/login?error=missing_token');
+
+  try {
+    const tokenDoc = await (await import('../models/db.js')).db.collection('auth_tokens').doc(token).get();
+
+    if (!tokenDoc.exists) {
+      console.log('[authCallback] Token not found');
+      return res.redirect('/login?error=invalid_token');
+    }
+
+    const data = tokenDoc.data();
+
+    // Check expiry
+    if (data.expiresAt.toDate() < new Date()) {
+      console.log('[authCallback] Token expired');
+      await tokenDoc.ref.delete();
+      return res.redirect('/login?error=token_expired');
+    }
+
+    // Delete token immediately (one-time use)
+    await tokenDoc.ref.delete();
+
+    // Set session
+    req.session.userId   = data.userId;
+    req.session.userRole = data.userRole;
+    req.session.campusId = data.campusId || null;
+
+    console.log('[authCallback] Setting session userId:', data.userId);
+
+    // Save session then redirect — this is a full browser request so cookie is set properly
+    req.session.save((err) => {
+      if (err) {
+        console.error('[authCallback] session.save error:', err);
+        return res.redirect('/login?error=session_error');
+      }
+      console.log('[authCallback] Session saved, redirecting to:', data.redirectTo);
+      return res.redirect(data.redirectTo);
+    });
+
+  } catch (err) {
+    console.error('[authCallback] ERROR:', err.message);
+    return res.redirect('/login?error=server_error');
+  }
+};
 export const completeProfilePage = async (req, res) => {
   if (!req.session.userId) return res.redirect("/login");
   try {
