@@ -44,8 +44,8 @@ app.use((req, res, next) => {
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "xianfire-secret-key",
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   store: db ? new FirestoreStore(db, { collection: 'sessions', ttl: 86400 }) : undefined,
   cookie: {
     secure: process.env.NODE_ENV === 'production',

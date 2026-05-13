@@ -194,28 +194,30 @@ export const authCallback = async (req, res) => {
     // Delete token immediately (one-time use)
     await tokenDoc.ref.delete();
 
-    // Set session
+    // Set session values
     req.session.userId   = data.userId;
     req.session.userRole = data.userRole;
     req.session.campusId = data.campusId || null;
 
-    console.log('[authCallback] Setting session userId:', data.userId);
+    console.log('[authCallback] Setting session userId:', data.userId, 'sessionID:', req.sessionID);
 
-    // Save session then redirect
-    req.session.save((err) => {
-      if (err) {
-        console.error('[authCallback] session.save error:', err);
-        return res.redirect('/login?error=session_error');
-      }
-      console.log('[authCallback] Session saved, redirecting to:', data.redirectTo);
-      // Prevent Vercel edge from caching this response (which would strip Set-Cookie)
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-      res.setHeader('Pragma', 'no-cache');
-      return res.redirect(data.redirectTo);
+    // Save session using promise
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
     });
 
+    console.log('[authCallback] Session saved successfully, redirecting to:', data.redirectTo);
+
+    // Set cache headers before redirect
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    return res.redirect(data.redirectTo);
+
   } catch (err) {
-    console.error('[authCallback] ERROR:', err.message);
+    console.error('[authCallback] ERROR:', err.message, err.stack);
     return res.redirect('/login?error=server_error');
   }
 };
